@@ -3,6 +3,7 @@
 namespace Pharaonic\Laravel\Executor\Console;
 
 use Illuminate\Console\Command;
+use Pharaonic\Laravel\Executor\Models\Executor;
 
 class ExecuteFreshCommand extends Command
 {
@@ -18,13 +19,19 @@ class ExecuteFreshCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Drop all executors and re-create them then execute them';
 
     /**
      * Execute the console command.
+     * 
+     * @return int
      */
     public function handle()
     {
-        //
+        Executor::truncate();
+
+        // todo: $this->call('execute');
+
+        return 0;
     }
 }
