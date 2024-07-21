@@ -1,0 +1,47 @@
+{
+    "name": "pharaonic/laravel-executor",
+    "description": "Laravel Executor is a package that allows you to execute commands, actions, jobs, and automated tasks on your production server.",
+    "keywords": [
+        "laravel executor",
+        "laravel execute command on production server",
+        "laravel execute action on production server",
+        "laravel execute job on production server",
+        "laravel execute automated task on production server"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Moamen Eltouny (Raggi)",
+            "email": "raggigroup@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.0",
+        "laravel/framework": ">=9.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^7.0"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Pharaonic\\Laravel\\Executor\\ExecutorServiceProvider"
+            ]
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Pharaonic\\Laravel\\Executor\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Pharaonic\\Laravel\\Executor\\Tests\\": "tests"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
