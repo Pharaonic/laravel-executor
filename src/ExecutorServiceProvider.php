@@ -28,6 +28,16 @@ class ExecutorServiceProvider extends ServiceProvider
     public function boot()
     {
         if ($this->app->runningInConsole()) {
+            // Publish Migrations
+            $this->publishes(
+                [__DIR__ . '/../database/migrations' => database_path('migrations')],
+                ['pharaonic', 'migrations', 'executor-migrations']
+            );
+
+            // Load Migrations
+            $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+
+            // Load Commands 
             $this->commands([
                 ExecuteCommand::class,
                 ExecuteMakeCommand::class,
