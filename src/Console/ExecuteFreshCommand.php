@@ -30,7 +30,7 @@ class ExecuteFreshCommand extends Command
     {
         Executor::truncate();
 
-        // todo: $this->call('execute');
+        $this->call('execute');
 
         return 0;
     }
