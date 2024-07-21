@@ -3,6 +3,7 @@
 namespace Pharaonic\Laravel\Executor\Console;
 
 use Illuminate\Console\Command;
+use Pharaonic\Laravel\Executor\Models\Executor;
 
 class ExecuteRollbackCommand extends Command
 {
@@ -18,13 +19,26 @@ class ExecuteRollbackCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Rollback the last inserted executors.';
 
     /**
      * Execute the console command.
+     * 
+     * @return int
      */
     public function handle()
     {
-        //
+        $batch = Executor::max('batch');
+
+        if ($batch === null) {
+            $this->error('No executors found.');
+            return 1;
+        }
+
+        Executor::where('batch', $batch)->delete();
+
+        $this->info('Last inserted executors has been rolled back successfully.');
+
+        return 0;
     }
 }
