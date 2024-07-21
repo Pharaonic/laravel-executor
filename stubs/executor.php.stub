@@ -1,0 +1,12 @@
+<?php
+
+return new class
+{
+    /**
+     * Execute Action.
+     */
+    public function handle()
+    {
+        //
+    }
+};
