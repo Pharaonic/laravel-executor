@@ -19,7 +19,7 @@ class ExecuteRollbackCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Rollback the last inserted executors.';
+    protected $description = 'Rollback the lastest executors that has been inserted.';
 
     /**
      * Execute the console command.
@@ -37,7 +37,7 @@ class ExecuteRollbackCommand extends Command
 
         Executor::where('batch', $batch)->delete();
 
-        $this->info('Last inserted executors has been rolled back successfully.');
+        $this->info('Executors has been rollbacked successfully.');
 
         return 0;
     }
