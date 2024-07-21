@@ -19,7 +19,7 @@ class CreateExecutorsTable extends Migration
             $table->unsignedTinyInteger('type')->default(ExecutorType::Always);
             $table->string('executor');
             $table->integer('batch');
-            $table->integer('executed')->default(0);
+            $table->integer('executed')->default(1);
             $table->timestamp('last_executed_at')->nullable();
         });
     }
