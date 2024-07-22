@@ -32,7 +32,7 @@ class ExecuteRollbackCommand extends Command
         $batches = Executor::orderBy('batch', 'desc')->groupBy('batch')->limit($this->option('steps'))->pluck('batch')->toArray();
 
         if (empty($batches)) {
-            $this->error('No executors found.');
+            $this->error('There are no executors has been found.');
             return 1;
         }
 
