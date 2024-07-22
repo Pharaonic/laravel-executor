@@ -13,7 +13,9 @@ class ExecuteMakeCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $signature = 'execute:make {name}';
+    protected $signature = 'execute:make {name}
+                            {--once : Create a new executor class that will be executed once}
+                            {--tag= : The tag of the executor}';
 
     /**
      * The console command description.
@@ -37,6 +39,81 @@ class ExecuteMakeCommand extends GeneratorCommand
     protected function getStub()
     {
         return __DIR__ . '/../../stubs/executor.php.stub';
+    }
+
+    /**
+     * Replace the class name for the given stub.
+     *
+     * @param  string  $stub
+     * @param  string  $name
+     * @return string
+     */
+    protected function replaceClass($stub, $name)
+    {
+        $stub = parent::replaceClass($stub, $name);
+
+        $this->setTypeProperty($stub);
+        $this->setTagProperty($stub);
+
+        return $stub;
+    }
+
+    /**
+     * Set the type property for the executor.
+     *
+     * @param string $stub
+     * @return void
+     */
+    protected function setTypeProperty(string &$stub)
+    {
+        if (!$this->option('once')) {
+            $stub = str_replace(
+                [
+                    '{{ type }}' . PHP_EOL,
+                    '{{ type-use }}' . PHP_EOL
+                ],
+                '',
+                $stub
+            );
+
+            return;
+        }
+
+        $stub = str_replace(
+            [
+                '{{ type-use }}',
+                '{{ type }}',
+            ],
+            [
+                'use Pharaonic\Laravel\Executor\Enums\ExecutorType;',
+                file_get_contents(__DIR__ . '/../../stubs/property/once.stub') . PHP_EOL,
+            ],
+            $stub
+        );
+    }
+
+    /**
+     * Replace the once option for the given stub.
+     *
+     * @param string $stub
+     * @return void
+     */
+    protected function setTagProperty(string &$stub)
+    {
+        if (!$this->option('tag')) {
+            $stub = str_replace('{{ tag }}' . PHP_EOL, '', $stub);
+            return;
+        }
+
+        $stub = str_replace(
+            '{{ tag }}',
+            str_replace(
+                '{{ tag }}',
+                '"' . $this->option('tag') . '"',
+                file_get_contents(__DIR__ . '/../../stubs/property/tag.stub')
+            ) . PHP_EOL,
+            $stub
+        );
     }
 
     /**
