@@ -3,11 +3,7 @@
 namespace Pharaonic\Laravel\Executor\Console;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\File;
-use Pharaonic\Laravel\Executor\Actions\ExecuteAlwaysAction;
-use Pharaonic\Laravel\Executor\Actions\ExecuteOnceAction;
-use Pharaonic\Laravel\Executor\Enums\ExecutorType;
-use Pharaonic\Laravel\Executor\Services\ExecuteBatchServices;
+use Pharaonic\Laravel\Executor\Services\ExecutorService;
 
 class ExecuteCommand extends Command
 {
@@ -16,33 +12,45 @@ class ExecuteCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'execute';
+    protected $signature = 'execute {name?}
+                            {--tag= : Execute the executor with the specified tag}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Sync the executors and execute them.';
 
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(ExecutorService $service)
     {
-        $executeBatchServices = new ExecuteBatchServices;
-        $currentBatch = $executeBatchServices->getCurrentBatch();
-
-        foreach (File::glob(base_path('executors/*')) as $executorFilepath) {
-            $executorFile = include $executorFilepath;
-
-            if ($executorFile->getType() == ExecutorType::Once) {
-                (new ExecuteOnceAction)->handle($executorFilepath, $executorFile, $currentBatch);
-            }
-
-            if ($executorFile->getType() == ExecutorType::Always) {
-                (new ExecuteAlwaysAction)->handle($executorFilepath, $executorFile, $currentBatch);
-            }
+        if (!$service->isExists()) {
+            $this->warn('There are no executors need to be executed.');
         }
+
+        $list = $service->sync();
+        $name = $this->argument('name');
+        $tag = $this->option('tag');
+
+        $executors = $list
+            ->filter(fn ($executor) => $executor['model']->executable)
+            ->when($name, fn ($executors) => $executors->where('name', $name))
+            ->when($tag, fn ($executors) => $executors->where('tag', $tag));
+
+        if ($executors->isEmpty()) {
+            $this->warn('There are no executors need to be executed.');
+        }
+
+        $executors->each(function ($executor) {
+            $this->info("Executing {$executor['name']}...");
+
+            (include $executor['path'])->handle();
+            $executor['model']->execute();
+        });
+
+        return 0;
     }
 }

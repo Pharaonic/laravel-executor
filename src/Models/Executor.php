@@ -5,6 +5,17 @@ namespace Pharaonic\Laravel\Executor\Models;
 use Illuminate\Database\Eloquent\Model;
 use Pharaonic\Laravel\Executor\Enums\ExecutorType;
 
+/**
+ * @property int $id
+ * @property ExecutorType $type
+ * @property string $executor
+ * @property string $tag
+ * @property int $batch
+ * @property int $executed
+ * @property \Carbon\Carbon $last_executed_at
+ * @property-read string $executable
+ * @method void execute()
+ */
 class Executor extends Model
 {
     /**
@@ -22,6 +33,7 @@ class Executor extends Model
     protected $fillable = [
         'type',
         'executor',
+        'tag',
         'batch',
         'executed',
         'last_executed_at'
@@ -38,4 +50,27 @@ class Executor extends Model
         'executed' => 'integer',
         'last_executed_at' => 'datetime',
     ];
+
+    /**
+     * Get the executable attribute.
+     *
+     * @return void
+     */
+    public function getExecutableAttribute()
+    {
+        return $this->type->isAlways() || ($this->type->isOnce() && $this->executed == 0);
+    }
+
+    /**
+     * Execute the executor action.
+     *
+     * @return void
+     */
+    public function execute()
+    {
+        $this->executed += 1;
+        $this->last_executed_at = now();
+
+        $this->save();
+    }
 }
