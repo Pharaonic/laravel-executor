@@ -1,12 +1,16 @@
 <?php
 
-return new class
+use Pharaonic\Laravel\Executor\Executor;
+
+return new class extends Executor
 {
     /**
-     * Execute Action.
+     * Execute it.
+     * 
+     * @return void
      */
-    public function handle()
+    public function handle(): void
     {
-        //
+        // 
     }
 };
