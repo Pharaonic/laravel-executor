@@ -12,7 +12,8 @@ class ExecuteRollbackCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'execute:rollback';
+    protected $signature = 'execute:rollback
+                            {--steps=1 : The number of executors to rollback}';
 
     /**
      * The console command description.
@@ -28,14 +29,14 @@ class ExecuteRollbackCommand extends Command
      */
     public function handle()
     {
-        $batch = Executor::max('batch');
+        $batches = Executor::orderBy('batch', 'desc')->groupBy('batch')->limit($this->option('steps'))->pluck('batch')->toArray();
 
-        if ($batch === null) {
+        if (empty($batches)) {
             $this->error('No executors found.');
             return 1;
         }
 
-        Executor::where('batch', $batch)->delete();
+        Executor::whereIn('batch', $batches)->delete();
 
         $this->info('Executors has been rollbacked successfully.');
 
