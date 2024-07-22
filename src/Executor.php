@@ -24,12 +24,12 @@ abstract class Executor
     /**
      * The tag of the executor.
      *
-     * @var string|array|null
+     * @var string|null
      */
     public $tag = null;
 
     /**
-     * Execute Action.
+     * Execute it.
      * 
      * @return void
      */

@@ -1,9 +1,12 @@
 <?php
 
+{{ type-use }}
 use Pharaonic\Laravel\Executor\Executor;
 
 return new class extends Executor
 {
+{{ type }}
+{{ tag }}
     /**
      * Execute it.
      * 
