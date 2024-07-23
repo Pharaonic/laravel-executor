@@ -3,9 +3,7 @@
 namespace Pharaonic\Laravel\Executor\Console;
 
 use Illuminate\Console\Command;
-use Pharaonic\Laravel\Executor\Models\Executor;
 use Pharaonic\Laravel\Executor\Services\ExecutorService;
-use Pharaonic\Laravel\Executor\Services\ExecutorServices;
 
 class ExecuteStatusCommand extends Command
 {
