@@ -100,6 +100,6 @@ final class ExecutorService
      */
     protected function getNextBatch()
     {
-        return Executor::orderBy('batch', 'desc')->first()->batch ?? 1;
+        return (Executor::orderBy('batch', 'desc')->first()?->batch ?? 0) + 1;
     }
 }
