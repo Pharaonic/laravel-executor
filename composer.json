@@ -24,7 +24,7 @@
         "laravel/framework": ">=10.0"
     },
     "require-dev": {
-        "orchestra/testbench": "^7.0"
+        "orchestra/testbench": "^8.0"
     },
     "config": {
         "sort-packages": true
