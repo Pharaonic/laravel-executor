@@ -1,7 +1,7 @@
 <p align="center"><a href="https://pharaonic.io" target="_blank"><img src="https://raw.githubusercontent.com/Pharaonic/logos/main/executor.jpg"></a></p>
 
 <p align="center">
-  <a href="https://laravel.com" target="_blank"><img src="https://img.shields.io/static/v1?label=Laravel&message=9.x, 10.x, 11.x&color=F05340&style=flat-square" alt="Laravel Version : 9.x, 10.x, 11.x"></a>
+  <a href="https://laravel.com" target="_blank"><img src="https://img.shields.io/static/v1?label=Laravel&message=10.x, 11.x&color=F05340&style=flat-square" alt="Laravel Version : 10.x, 11.x"></a>
   <img src="https://img.shields.io/static/v1?label=License&message=MIT&color=brightgreen&style=flat-square" alt="License">
   <img src="https://img.shields.io/github/actions/workflow/status/pharaonic/laravel-executor/build.yml" alt="GitHub Actions Workflow Status">
   <br>
