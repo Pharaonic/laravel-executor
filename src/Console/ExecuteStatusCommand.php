@@ -31,13 +31,14 @@ class ExecuteStatusCommand extends Command
         $executors = $service->sync();
 
         $this->table(
-            ['Name', 'Type', 'Tag', 'Executed'],
+            ['Name', 'Type', 'Tag', 'Batch', 'Executed'],
             $executors->map(function ($executor) {
                 return [
                     $executor['name'],
                     ucfirst($executor['type']->name),
                     $executor['tag'],
-                    $executor['model']->executed > 0 ? '<info>Yes</info>' : 'No',
+                    $executor['model']->batch,
+                    $executor['model']->executed > 0 ? '<info>Yes</info>' : '<comment>No</comment>',
                 ];
             })
         );
