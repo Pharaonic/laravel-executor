@@ -79,7 +79,7 @@ final class ExecutorService
             $batch = $this->getNextBatch();
 
             $newExecutors->each(function ($executor) use (&$executors, $batch) {
-                $executor['model'] = Executor::create([
+                $executor['model'] = new Executor([
                     'executor' => $executor['name'],
                     'type' => $executor['type'],
                     'tag' => $executor['tag'],
