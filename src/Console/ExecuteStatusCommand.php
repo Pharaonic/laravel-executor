@@ -35,8 +35,8 @@ class ExecuteStatusCommand extends Command
                     $executor['name'],
                     ucfirst($executor['type']->name),
                     $executor['tag'],
-                    $executor['model']?->batch,
-                    $executor['model']?->executed > 0 ? '<info>Yes</info>' : '<comment>No</comment>',
+                    $executor['model']->batch,
+                    $executor['model']->executed > 0 ? '<info>Yes</info>' : '<comment>No</comment>',
                 ];
             })
         );
