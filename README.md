@@ -10,7 +10,7 @@
   <a href="https://packagist.org/packages/pharaonic/laravel-executor" target="_blank"><img src="https://poser.pugx.org/pharaonic/laravel-executor/downloads" alt="Packagist Downloads"></a>
 </p>
 
-<h3 align="center">Laravel Executor is a package that allows you to execute commands, actions, jobs, and automated tasks on your production server.</h3>
+<h3 align="center">Allows you to execute commands, actions, jobs, and automated tasks on your production server.</h3>
 <br>
 
 ## Documentation
