@@ -3,6 +3,7 @@
 namespace Pharaonic\Laravel\Executor\Services;
 
 use Illuminate\Support\Facades\File;
+use Pharaonic\Laravel\Executor\ExecutorPool;
 use Pharaonic\Laravel\Executor\Models\Executor;
 use ReflectionClass;
 
@@ -39,29 +40,37 @@ final class ExecutorService
     {
         $db = Executor::all()->keyBy('executor');
 
-        return collect(array_map(function ($file) use ($db) {
-            $class = new ReflectionClass(include $file);
-            $name = basename($class->getFileName(), '.php');
-            $executor = [
-                'name' => $name,
-                'type' => $class->getProperty('type')->getDefaultValue(),
-                'tag' => $class->getProperty('tag')->getDefaultValue(),
-                'path' => $class->getFileName(),
-                'model' => $db[$name] ?? null
-            ];
+        $collectExecutors = collect([]);
 
-            if ($executor['model']) {
-                $executor['model']->fill([
-                    'type' => $executor['type'],
-                    'tag' => $executor['tag'],
-                ]);
+        foreach (ExecutorPool::getPaths() as $path) {
+            $executors = collect(array_map(function ($file) use ($db) {
+                $class = new ReflectionClass(include $file);
+                $name = basename($class->getFileName(), '.php');
+                $executor = [
+                    'name' => $name,
+                    'type' => $class->getProperty('type')->getDefaultValue(),
+                    'tag' => $class->getProperty('tag')->getDefaultValue(),
+                    'path' => $class->getFileName(),
+                    'model' => $db[$name] ?? null
+                ];
 
-                if ($executor['model']->isDirty()) {
-                    $executor['model']->save();
+                if ($executor['model']) {
+                    $executor['model']->fill([
+                        'type' => $executor['type'],
+                        'tag' => $executor['tag'],
+                    ]);
+
+                    if ($executor['model']->isDirty()) {
+                        $executor['model']->save();
+                    }
                 }
-            }
-            return $executor;
-        }, File::glob($this->dir . '/*')))->keyBy('name');
+                return $executor;
+            }, File::glob($path . '/*')))->keyBy('name');
+
+            $collectExecutors = $collectExecutors->merge($executors->all());
+        }
+
+        return $collectExecutors;
     }
 
 

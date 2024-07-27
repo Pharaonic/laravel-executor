@@ -8,6 +8,7 @@ use Pharaonic\Laravel\Executor\Console\ExecuteFreshCommand;
 use Pharaonic\Laravel\Executor\Console\ExecuteMakeCommand;
 use Pharaonic\Laravel\Executor\Console\ExecuteRollbackCommand;
 use Pharaonic\Laravel\Executor\Console\ExecuteStatusCommand;
+use Pharaonic\Laravel\Executor\ExecutorPool;
 
 class ExecutorServiceProvider extends ServiceProvider
 {
@@ -18,6 +19,8 @@ class ExecutorServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        ExecutorPool::addPath(base_path('executors'));
+
         if ($this->app->runningInConsole()) {
             // Publish Migrations
             $this->publishes(
