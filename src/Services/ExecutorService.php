@@ -3,7 +3,7 @@
 namespace Pharaonic\Laravel\Executor\Services;
 
 use Illuminate\Support\Facades\File;
-use Pharaonic\Laravel\Executor\ExecutorPool;
+use Pharaonic\Laravel\Executor\Facades\ExecutorPool;
 use Pharaonic\Laravel\Executor\Models\Executor;
 use ReflectionClass;
 
