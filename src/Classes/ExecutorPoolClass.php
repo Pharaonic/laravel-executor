@@ -4,6 +4,9 @@ namespace Pharaonic\Laravel\Executor\Classes;
 
 class ExecutorPoolClass
 {
+    /**
+     * These paths for all pools of executors.
+     */
     private array $paths = [];
 
     public function __construct()
@@ -13,12 +16,24 @@ class ExecutorPoolClass
         ];
     }
 
-    public function getPaths()
+    /**
+     * Return all pools of executors.
+     * 
+     * @return array
+     */
+    public function getPaths(): array
     {
         return $this->paths;
     }
 
-    public function addPath($path)
+    /**
+     * Add a new path to executors pools.
+     * 
+     * @param string $path
+     * 
+     * @return void
+     */
+    public function addPath(string $path): void
     {
         array_push($this->paths, $path);
     }
