@@ -3,6 +3,7 @@
 namespace Pharaonic\Laravel\Executor\Services;
 
 use Illuminate\Support\Facades\File;
+use Pharaonic\Laravel\Executor\Facades\ExecutorPool;
 use Pharaonic\Laravel\Executor\Models\Executor;
 use ReflectionClass;
 
@@ -61,7 +62,7 @@ final class ExecutorService
                 }
             }
             return $executor;
-        }, File::glob($this->dir . '/*')))->keyBy('name');
+        }, $this->collectAllPaths()))->keyBy('name');
     }
 
 
@@ -101,5 +102,16 @@ final class ExecutorService
     protected function getNextBatch()
     {
         return (Executor::orderBy('batch', 'desc')->first()?->batch ?? 0) + 1;
+    }
+
+    private function collectAllPaths()
+    {
+        $collectPath = collect([]);
+
+        foreach (ExecutorPool::getPaths() as $path) {
+            $collectPath = $collectPath->merge(File::glob($path . '/*'));
+        }
+
+        return $collectPath->all();
     }
 }
