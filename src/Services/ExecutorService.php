@@ -62,7 +62,7 @@ final class ExecutorService
                 }
             }
             return $executor;
-        }, $this->collectAllPaths()))->keyBy('name');
+        }, $this->getPaths()))->keyBy('name');
     }
 
 
@@ -103,8 +103,13 @@ final class ExecutorService
     {
         return (Executor::orderBy('batch', 'desc')->first()?->batch ?? 0) + 1;
     }
-
-    private function collectAllPaths()
+    
+    /**
+     * Get the paths of the executors.
+     *
+     * @return array
+     */
+    protected function getPaths()
     {
         $collectPath = collect([]);
 
