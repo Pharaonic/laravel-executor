@@ -6,14 +6,14 @@ class ExecutorPoolClass
 {
     /**
      * These paths for all pools of executors.
+     * 
+     * @var array
      */
     private array $paths = [];
 
     public function __construct()
     {
-        $this->paths = [
-            base_path('executors'),
-        ];
+        $this->paths = [base_path('executors')];
     }
 
     /**
@@ -30,7 +30,6 @@ class ExecutorPoolClass
      * Add a new path to executors pools.
      * 
      * @param string $path
-     * 
      * @return void
      */
     public function addPath(string $path): void
