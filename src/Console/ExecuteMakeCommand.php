@@ -14,8 +14,10 @@ class ExecuteMakeCommand extends GeneratorCommand
      * @var string
      */
     protected $signature = 'execute:make {name}
-                            {--once : Create a new executor class that will be executed once}
-                            {--tag= : The tag of the executor}';
+                            {--o|once : Create a new executor class that will be executed once}
+                            {--tag= : The tag of the executor}
+                            {--path= : The path of the executor}
+                            {--f|force : Create the class even if the executor already exists}';
 
     /**
      * The console command description.
@@ -126,7 +128,7 @@ class ExecuteMakeCommand extends GeneratorCommand
     {
         $name = Str::snake(trim(str_replace('\\', '/', Str::replaceFirst($this->rootNamespace(), '', $name))));
 
-        File::ensureDirectoryExists($dir = base_path('executors'));
+        File::ensureDirectoryExists($dir = base_path($this->option('path') ?? 'executors'));
 
         return $dir . DIRECTORY_SEPARATOR . $this->getDatePrefix() . '_' . $name . '.php';
     }
