@@ -16,8 +16,7 @@ class ExecuteMakeCommand extends GeneratorCommand
     protected $signature = 'execute:make {name}
                             {--o|once : Create a new executor class that will be executed once}
                             {--tag= : The tag of the executor}
-                            {--path= : The path of the executor}
-                            {--f|force : Create the class even if the executor already exists}';
+                            {--path= : The path of the executor}';
 
     /**
      * The console command description.
