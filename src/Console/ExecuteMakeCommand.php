@@ -34,7 +34,7 @@ class ExecuteMakeCommand extends GeneratorCommand
 
     /**
      * Get the stub file for the generator.
-     * 
+     *
      * @return string
      */
     protected function getStub()
@@ -70,8 +70,8 @@ class ExecuteMakeCommand extends GeneratorCommand
         if (!$this->option('once')) {
             $stub = str_replace(
                 [
-                    '{{ type }}' . PHP_EOL,
-                    '{{ type-use }}' . PHP_EOL
+                    "{{ type }}\n",
+                    "{{ type-use }}\n"
                 ],
                 '',
                 $stub
@@ -102,7 +102,7 @@ class ExecuteMakeCommand extends GeneratorCommand
     protected function setTagProperty(string &$stub)
     {
         if (!$this->option('tag')) {
-            $stub = str_replace('{{ tag }}' . PHP_EOL, '', $stub);
+            $stub = str_replace("{{ tag }}\n", '', $stub);
             return;
         }
 
@@ -125,7 +125,19 @@ class ExecuteMakeCommand extends GeneratorCommand
      */
     protected function getPath($name)
     {
-        $name = Str::snake(trim(str_replace('\\', '/', Str::replaceFirst($this->rootNamespace(), '', $name))));
+        $name = Str::snake(
+            trim(
+                str_replace(
+                    '\\',
+                    '/',
+                    Str::replaceFirst(
+                        $this->rootNamespace(),
+                        '',
+                        $name
+                    )
+                )
+            )
+        );
 
         File::ensureDirectoryExists($dir = base_path($this->option('path') ?? 'executors'));
 
