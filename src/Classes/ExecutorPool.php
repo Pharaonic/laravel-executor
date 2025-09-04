@@ -71,7 +71,6 @@ class ExecutorPool
     {
         if (! empty($this->items)) {
             $this->items = [];
-            // return;
         }
 
         foreach ($this->paths as $path) {
@@ -86,10 +85,12 @@ class ExecutorPool
 
                         $name = basename($file->getFileName(), '.php');
                         $record = $records->get($name);
-                        array_push(
-                            $this->items,
-                            new ExecutorItem($obj, $file, $name, $record)
-                        );
+
+                        if (isset($this->items[$name])) {
+                            throw new \Exception("Duplicate Executor name [$name] in file: " . $file->getRealPath());
+                        }
+
+                        $this->items[$name] = new ExecutorItem($obj, $file, $name, $record);
                     }
                 }
             }
