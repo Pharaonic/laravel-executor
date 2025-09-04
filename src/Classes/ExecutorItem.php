@@ -2,6 +2,7 @@
 
 namespace Pharaonic\Laravel\Executor\Classes;
 
+use Pharaonic\Laravel\Executor\Facades\Executor as ExecutorFacade;
 use Pharaonic\Laravel\Executor\Models\Executor as Model;
 use Symfony\Component\Finder\SplFileInfo;
 
@@ -65,13 +66,59 @@ class ExecutorItem
     }
 
     /**
+     * Determine if the executor is executable.
+     *
+     * @return bool
+     */
+    public function isExecutable()
+    {
+        if (! $this->model) {
+            return true;
+        }
+
+        if ($servers = $this->executor->servers ?: null) {
+            if (! array_intersect($servers, ExecutorFacade::getIPs())) {
+                return false;
+            }
+        }
+
+        return $this->model?->executable ?? true;
+    }
+
+    /**
+     * Set the associated executor model.
+     *
+     * @param  Model $model
+     * @return static
+     */
+    public function setModel(Model $model)
+    {
+        $this->model = $model;
+
+        return $this;
+    }
+
+    /**
      * Run the executor.
      *
      * @return void
      */
-    public function run()
+    public function run(int $nextBatch)
     {
         $this->executor->up();
+
+        if (! $this->model) {
+            Model::create([
+                'type' => $this->executor->type,
+                'name' => $this->name,
+                'tags' => $this->executor->tags,
+                'batch' => $nextBatch,
+                'executed' => 1,
+                'last_executed_at' => now(),
+            ]);
+        } else {
+            $this->model->execute();
+        }
     }
 
     /**
@@ -82,5 +129,6 @@ class ExecutorItem
     public function reverse()
     {
         $this->executor->down();
+        $this->model?->delete();
     }
 }

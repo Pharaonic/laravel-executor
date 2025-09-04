@@ -10,7 +10,7 @@ use Pharaonic\Laravel\Executor\Enums\ExecutorType;
  * @property ExecutorType $type
  * @property string $name
  * @property array|null $tags
- * @property int $batch
+ * @property int|null $batch
  * @property int $executed
  * @property \Illuminate\Support\Carbon $last_executed_at
  * @method bool isNew()

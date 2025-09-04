@@ -98,4 +98,14 @@ class ExecutorPool
 
         return $this;
     }
+
+    /**
+     * Get all collected executors items.
+     *
+     * @return array
+     */
+    public function getItems()
+    {
+        return $this->items;
+    }
 }

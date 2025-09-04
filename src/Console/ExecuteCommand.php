@@ -3,7 +3,6 @@
 namespace Pharaonic\Laravel\Executor\Console;
 
 use Illuminate\Console\Command;
-use Pharaonic\Laravel\Executor\Services\ExecutorService;
 
 class ExecuteCommand extends Command
 {
@@ -13,7 +12,7 @@ class ExecuteCommand extends Command
      * @var string
      */
     protected $signature = 'execute {name?}
-                            {--tag= : Execute the executor with the specified tag}';
+                            {--tags= : Execute the executor with the specified tags}';
 
     /**
      * The console command description.
@@ -25,31 +24,44 @@ class ExecuteCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle(ExecutorService $service)
+    public function handle()
     {
-        if (! $service->isExists()) {
-            $this->warn('There are no executors need to be executed.');
-        }
+        $manager = app('pharaonic.executor.manager');
+        $items = $manager->pool->collect($manager->getRecords())->getItems();
 
-        $list = $service->sync();
         $name = $this->argument('name');
-        $tag = $this->option('tag');
+        $tags = $this->option('tags');
+        $toRun = [];
 
-        $executors = $list
-            ->filter(fn ($executor) => $executor['model']->executable)
-            ->when($name, fn ($executors) => $executors->where('name', $name))
-            ->when($tag, fn ($executors) => $executors->where('tag', $tag));
+        if ($name) {
+            if (! isset($items[$name])) {
+                $this->warn("There is no executor with name [$name].");
+            }
 
-        if ($executors->isEmpty()) {
-            $this->warn('There are no executors need to be executed.');
+            if ($items[$name]->isExecutable($tags)) {
+                $toRun[] = $items[$name];
+            }
         }
 
-        $executors->each(function ($executor) {
-            $this->info("Executing {$executor['name']}...");
+        if ($tags) {
+            foreach ($items as $item) {
+                if ($item->isExecutable($tags) && ! in_array($item, $toRun)) {
+                    $toRun[] = $item;
+                }
+            }
+        }
 
-            (include $executor['path'])->handle();
-            $executor['model']->execute();
-        });
+        if (empty($toRun)) {
+            $this->warn('There are no executors need to be executed.');
+        } else {
+            $batch = $manager->getNextBatchNumber();
+
+            foreach ($toRun as $item) {
+                $this->info("Executing {$item->getName()}...");
+
+                $item->run($batch);
+            }
+        }
 
         return 0;
     }
