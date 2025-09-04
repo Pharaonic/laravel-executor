@@ -1,6 +1,6 @@
 <?php
 
-namespace Pharaonic\Laravel\Executor;
+namespace Pharaonic\Laravel\Executor\Classes;
 
 use Illuminate\Console\Concerns\InteractsWithIO;
 use Illuminate\Console\OutputStyle;
@@ -10,6 +10,16 @@ use Pharaonic\Laravel\Executor\Enums\ExecutorType;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
+/**
+ * @property ExecutorType $type
+ * @property array $tags
+ * @property array $servers
+ * @method void up()
+ * @method void down()
+ * @method PendingDispatch job(string|object $job, ...$arguments)
+ * @method int command(string $command, array $parameters = [])
+ * @method int seed(string $class)
+ */
 abstract class Executor
 {
     use InteractsWithIO;
@@ -24,16 +34,16 @@ abstract class Executor
     /**
      * The tags of the executor.
      *
-     * @var array|null
+     * @var array
      */
-    public $tags = null;
+    public $tags = [];
 
     /**
      * The servers of the executor.
      *
-     * @var array|null
+     * @var array
      */
-    public $servers = null;
+    public $servers = [];
 
     /**
      * Run the executor.
@@ -60,12 +70,12 @@ abstract class Executor
             throw new \Exception('The type of the executor must be an instance of ExecutorType.');
         }
 
-        if (! is_null($this->tags) && ! is_array($this->tags)) {
-            throw new \Exception('The tags of the executor must be an array or null.');
+        if (! is_array($this->tags)) {
+            throw new \Exception('The tags of the executor must be an array.');
         }
 
-        if (! is_null($this->servers) && ! is_array($this->servers)) {
-            throw new \Exception('The servers of the executor must be an array of ips or null.');
+        if (! is_array($this->servers)) {
+            throw new \Exception('The servers of the executor must be an array of ips.');
         }
 
         $this->output = new OutputStyle(new ArgvInput(), new ConsoleOutput());
