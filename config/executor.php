@@ -1,6 +1,6 @@
 <?php
 
 return [
-    'connection' => env('DB_CONNECTION', 'mysql'),
+    'connection' => env('DB_CONNECTION', config('database.default')),
     'table'      => 'executors',
 ];
