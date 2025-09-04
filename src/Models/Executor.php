@@ -8,12 +8,13 @@ use Pharaonic\Laravel\Executor\Enums\ExecutorType;
 /**
  * @property int $id
  * @property ExecutorType $type
- * @property string $executor
- * @property string $tag
+ * @property string $name
+ * @property array|null $tags
  * @property int $batch
  * @property int $executed
- * @property \Carbon\Carbon $last_executed_at
- * @property-read string $executable
+ * @property \Illuminate\Support\Carbon $last_executed_at
+ * @method bool isNew()
+ * @method bool isExecutable()
  * @method void execute()
  */
 class Executor extends Model
@@ -32,8 +33,8 @@ class Executor extends Model
      */
     protected $fillable = [
         'type',
-        'executor',
-        'tag',
+        'name',
+        'tags',
         'batch',
         'executed',
         'last_executed_at',
@@ -46,19 +47,50 @@ class Executor extends Model
      */
     protected $casts = [
         'type' => ExecutorType::class,
+        'tags' => 'array',
         'batch' => 'integer',
         'executed' => 'integer',
         'last_executed_at' => 'datetime',
     ];
 
     /**
-     * Get the executable attribute.
+     * Get the current connection name for the model.
      *
-     * @return void
+     * @return string|null
      */
-    public function getExecutableAttribute()
+    public function getConnectionName()
     {
-        return $this->type->isAlways() || ($this->type->isOnce() && $this->executed == 0);
+        return config('pharaonic.executor.connection', parent::getConnectionName());
+    }
+
+    /**
+     * Get the table associated with the model.
+     *
+     * @return string
+     */
+    public function getTable()
+    {
+        return config('pharaonic.executor.table', parent::getTable());
+    }
+
+    /**
+     * Check if the executor is new (never executed).
+     *
+     * @return boolean
+     */
+    public function isNew()
+    {
+        return $this->executed == 0;
+    }
+
+    /**
+     * Check if the executor is executable.
+     *
+     * @return boolean
+     */
+    public function isExecutable()
+    {
+        return $this->type->isAlways() || $this->isNew();
     }
 
     /**
