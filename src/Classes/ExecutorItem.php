@@ -21,10 +21,10 @@ class ExecutorItem
     public function info()
     {
         return [
-            'type'    => $this->executor->type,
-            'tags'    => $this->executor->tags,
+            'type' => $this->executor->type,
+            'tags' => $this->executor->tags,
             'servers' => $this->executor->servers,
-            'path'    => $this->path,
+            'path' => $this->path,
         ];
     }
 }

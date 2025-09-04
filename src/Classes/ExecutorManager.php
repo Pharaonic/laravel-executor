@@ -23,7 +23,7 @@ class ExecutorManager
      */
     public function info()
     {
-        // 
+        //
     }
 
     /**

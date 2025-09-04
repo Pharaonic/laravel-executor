@@ -54,7 +54,7 @@ class ExecutorPool
     public function collect()
     {
         $list = [];
-        
+
         foreach ($this->paths as $path) {
             if (File::isDirectory($path) && ! File::isEmptyDirectory($path, true)) {
                 foreach (File::files($path) as $executor) {
