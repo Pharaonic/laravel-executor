@@ -3,6 +3,7 @@
 namespace Pharaonic\Laravel\Executor;
 
 use Illuminate\Support\ServiceProvider;
+use Pharaonic\Laravel\Executor\Classes\ExecutorManager;
 use Pharaonic\Laravel\Executor\Classes\ExecutorPoolClass;
 use Pharaonic\Laravel\Executor\Console\ExecuteCommand;
 use Pharaonic\Laravel\Executor\Console\ExecuteFreshCommand;
@@ -19,7 +20,10 @@ class ExecutorServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('pharaonic.executor.executorPool', ExecutorPoolClass::class);
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        $this->mergeConfigFrom(__DIR__ . '/../config/executor.php', 'pharaonic.executor');
+
+        $this->app->singleton('pharaonic.executor.manager', ExecutorManager::class);
     }
 
     /**
@@ -30,23 +34,24 @@ class ExecutorServiceProvider extends ServiceProvider
     public function boot()
     {
         if ($this->app->runningInConsole()) {
-            // Publish Migrations
             $this->publishes(
                 [__DIR__ . '/../database/migrations' => database_path('migrations')],
-                ['pharaonic', 'migrations', 'executor-migrations']
+                ['pharaonic', 'migrations', 'laravel-executor']
             );
 
-            // Load Migrations
-            $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+            $this->publishes(
+                [__DIR__ . '/../config/executor.php' => config_path('pharaonic/executor.php')],
+                ['pharaonic', 'config', 'laravel-executor']
+            );
 
-            // Load Commands
-            $this->commands([
-                ExecuteCommand::class,
-                ExecuteMakeCommand::class,
-                ExecuteRollbackCommand::class,
-                ExecuteFreshCommand::class,
-                ExecuteStatusCommand::class,
-            ]);
+            // // Load Commands
+            // $this->commands([
+            //     ExecuteCommand::class,
+            //     ExecuteMakeCommand::class,
+            //     ExecuteRollbackCommand::class,
+            //     ExecuteFreshCommand::class,
+            //     ExecuteStatusCommand::class,
+            // ]);
         }
     }
 }

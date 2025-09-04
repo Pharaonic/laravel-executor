@@ -15,4 +15,24 @@ class ExecutorManager
     {
         $this->pool = new ExecutorPool();
     }
+
+    /**
+     * Get info about all executors.
+     *
+     * @return array
+     */
+    public function info()
+    {
+        // 
+    }
+
+    /**
+     * Run all the executors.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        //
+    }
 }
