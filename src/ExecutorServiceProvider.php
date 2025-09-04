@@ -51,7 +51,7 @@ class ExecutorServiceProvider extends ServiceProvider
                 ExecuteMakeCommand::class,
             //     ExecuteRollbackCommand::class,
             //     ExecuteFreshCommand::class,
-            //     ExecuteStatusCommand::class,
+                ExecuteStatusCommand::class,
             ]);
         }
     }
