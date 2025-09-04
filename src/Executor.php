@@ -2,11 +2,11 @@
 
 namespace Pharaonic\Laravel\Executor;
 
+use Illuminate\Console\Concerns\InteractsWithIO;
 use Illuminate\Console\OutputStyle;
 use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Support\Facades\Artisan;
 use Pharaonic\Laravel\Executor\Enums\ExecutorType;
-use Pharaonic\Laravel\Executor\Traits\InteractsWithIO;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
@@ -22,18 +22,32 @@ abstract class Executor
     public $type = ExecutorType::Always;
 
     /**
-     * The tag of the executor.
+     * The tags of the executor.
      *
-     * @var string|null
+     * @var array|null
      */
-    public $tag = null;
+    public $tags = null;
 
     /**
-     * Execute it.
+     * The servers of the executor.
+     *
+     * @var array|null
+     */
+    public $servers = null;
+
+    /**
+     * Run the executor.
      *
      * @return void
      */
-    abstract public function handle(): void;
+    abstract public function up(): void;
+
+    /**
+     * Reverse the executor.
+     *
+     * @return void
+     */
+    abstract public function down(): void;
 
     /**
      * Create a new Executor instance.
@@ -46,8 +60,12 @@ abstract class Executor
             throw new \Exception('The type of the executor must be an instance of ExecutorType.');
         }
 
-        if (! is_null($this->tag) && ! is_string($this->tag) && ! is_array($this->tag)) {
-            throw new \Exception('The tag of the executor must be a string or an array or null.');
+        if (! is_null($this->tags) && ! is_array($this->tags)) {
+            throw new \Exception('The tags of the executor must be an array or null.');
+        }
+
+        if (! is_null($this->servers) && ! is_array($this->servers)) {
+            throw new \Exception('The servers of the executor must be an array of ips or null.');
         }
 
         $this->output = new OutputStyle(new ArgvInput(), new ConsoleOutput());
@@ -80,4 +98,15 @@ abstract class Executor
     {
         return Artisan::call($command, $parameters, $this->output);
     }
-}
+
+    /**
+     * Seed the given class.
+     *
+     * @param  string  $class
+     * @return int
+     */
+    final protected function seed(string $class): int
+    {
+        return $this->command('db:seed', ['--class' => $class]);
+    }
+};
