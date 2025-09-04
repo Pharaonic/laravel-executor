@@ -1,0 +1,6 @@
+    /**
+     * The servers of the executor.
+     *
+     * @var array|null
+     */
+    public $servers = {{ servers }};

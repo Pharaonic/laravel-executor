@@ -1,0 +1,6 @@
+    /**
+     * The tags of the executor.
+     *
+     * @var array|null
+     */
+    public $tags = {{ tags }};

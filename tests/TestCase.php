@@ -8,12 +8,12 @@ use Pharaonic\Laravel\Executor\ExecutorServiceProvider;
 
 class TestCase extends OrchestraTestCase
 {
-    public function setUp(): void
-    {
-        parent::setUp();
+    // public function setUp(): void
+    // {
+    //     parent::setUp();
 
-        File::deleteDirectory(base_path('executors'));
-    }
+    //     File::deleteDirectory(base_path('executors'));
+    // }
 
     /**
      * add the package provider
@@ -36,9 +36,9 @@ class TestCase extends OrchestraTestCase
     {
         $app['config']->set('database.default', 'testing');
         $app['config']->set('database.connections.testing', [
-            'driver' => 'sqlite',
+            'driver'   => 'sqlite',
             'database' => ':memory:',
-            'prefix' => '',
+            'prefix'   => '',
         ]);
     }
 }

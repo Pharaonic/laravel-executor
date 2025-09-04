@@ -1,18 +1,35 @@
 <?php
 
-{{ type-use }}
+use Pharaonic\Laravel\Executor\Enums\ExecutorType;
 use Pharaonic\Laravel\Executor\Executor;
 
 return new class extends Executor
 {
-{{ type }}
-{{ tag }}
     /**
-     * Execute it.
+     * The type of the executor.
+     *
+     * @var ExecutorType
+     */
+    public $type = ExecutorType::Always;
+    
+{{ tags }}
+{{ servers }}
+    /**
+     * Run the executor.
      * 
      * @return void
      */
-    public function handle(): void
+    public function up(): void
+    {
+        // 
+    }
+
+    /**
+     * Reverse the executor.
+     * 
+     * @return void
+     */
+    public function down(): void
     {
         // 
     }

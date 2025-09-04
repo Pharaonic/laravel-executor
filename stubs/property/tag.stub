@@ -1,6 +1,0 @@
-    /**
-     * The tag of the executor.
-     *
-     * @var string|null
-     */
-    public $tag = {{ tag }};
