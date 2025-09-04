@@ -18,7 +18,6 @@ use Symfony\Component\Console\Output\ConsoleOutput;
  * @method void down()
  * @method PendingDispatch job(string|object $job, ...$arguments)
  * @method int command(string $command, array $parameters = [])
- * @method int seed(string $class)
  */
 abstract class Executor
 {
@@ -107,16 +106,5 @@ abstract class Executor
     final protected function command(string $command, array $parameters = []): int
     {
         return Artisan::call($command, $parameters, $this->output);
-    }
-
-    /**
-     * Seed the given class.
-     *
-     * @param  string  $class
-     * @return int
-     */
-    final protected function seed(string $class): int
-    {
-        return $this->command('db:seed', ['--class' => $class]);
     }
 };

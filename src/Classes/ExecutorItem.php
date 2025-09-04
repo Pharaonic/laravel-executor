@@ -82,20 +82,13 @@ class ExecutorItem
             }
         }
 
-        return $this->model?->executable ?? true;
-    }
+        $this->model?->fill([
+            'type' => $this->executor->type,
+            'tags' => $this->executor->tags,
+            'servers' => $this->executor->servers,
+        ]);
 
-    /**
-     * Set the associated executor model.
-     *
-     * @param  Model $model
-     * @return static
-     */
-    public function setModel(Model $model)
-    {
-        $this->model = $model;
-
-        return $this;
+        return $this->model?->isExecutable() ?? true;
     }
 
     /**
@@ -108,7 +101,7 @@ class ExecutorItem
         $this->executor->up();
 
         if (! $this->model) {
-            Model::create([
+            $this->model = Model::create([
                 'type' => $this->executor->type,
                 'name' => $this->name,
                 'tags' => $this->executor->tags,
@@ -117,7 +110,9 @@ class ExecutorItem
                 'last_executed_at' => now(),
             ]);
         } else {
-            $this->model->execute();
+            $this->model->executed += 1;
+            $this->model->last_executed_at = now();
+            $this->model->save();
         }
     }
 

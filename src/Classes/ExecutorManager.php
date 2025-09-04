@@ -32,7 +32,7 @@ class ExecutorManager
      */
     public function getRecords()
     {
-        return Executor::all()->keyBy('executor');
+        return Executor::all()->keyBy('name');
     }
 
     /**
