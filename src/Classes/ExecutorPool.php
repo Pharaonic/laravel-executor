@@ -29,11 +29,13 @@ class ExecutorPool
      * Add a new path to executors pools.
      *
      * @param string $path
-     * @return void
+     * @return static
      */
-    public function addPath(string $path): void
+    public function addPath(string $path)
     {
         array_push($this->paths, $path);
+
+        return $this;
     }
 
     /**
@@ -47,14 +49,27 @@ class ExecutorPool
     }
 
     /**
+     * Get info about all executors.
+     *
+     * @return array
+     */
+    public function info()
+    {
+        return collect($this->items)->map(function ($item) {
+            return $item->info();
+        })->toArray();
+    }
+
+    /**
      * Collect all executors from the defined paths.
      *
-     * @return void
+     * @return static
      */
     public function collect()
     {
         if (! empty($this->items)) {
-            return;
+            $this->items = [];
+            // return;
         }
 
         foreach ($this->paths as $path) {
@@ -72,5 +87,7 @@ class ExecutorPool
                 }
             }
         }
+
+        return $this;
     }
 }
