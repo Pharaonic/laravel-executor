@@ -43,14 +43,13 @@ class ExecutorServiceProvider extends ServiceProvider
                 ['pharaonic', 'config', 'laravel-executor']
             );
 
-            // // Load Commands
-            // $this->commands([
+            $this->commands([
             //     ExecuteCommand::class,
-            //     ExecuteMakeCommand::class,
+                ExecuteMakeCommand::class,
             //     ExecuteRollbackCommand::class,
             //     ExecuteFreshCommand::class,
             //     ExecuteStatusCommand::class,
-            // ]);
+            ]);
         }
     }
 }
