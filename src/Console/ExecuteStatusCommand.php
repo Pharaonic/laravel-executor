@@ -3,7 +3,7 @@
 namespace Pharaonic\Laravel\Executor\Console;
 
 use Illuminate\Console\Command;
-use Pharaonic\Laravel\Executor\Services\ExecutorService;
+use Pharaonic\Laravel\Executor\Facades\Executor;
 
 class ExecuteStatusCommand extends Command
 {
@@ -24,19 +24,18 @@ class ExecuteStatusCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle(ExecutorService $service)
+    public function handle()
     {
-        $executors = $service->sync();
-
         $this->table(
-            ['Name', 'Type', 'Tag', 'Batch', 'Executed'],
-            $executors->map(function ($executor) {
+            ['Name', 'Type', 'Tags', 'Servers', 'Batch', 'Executed'],
+            collect(Executor::info())->map(function ($executor) {
                 return [
                     $executor['name'],
-                    ucfirst($executor['type']->name),
-                    $executor['tag'],
-                    $executor['model']->batch,
-                    $executor['model']->executed > 0 ? '<info>Yes</info>' : '<comment>No</comment>',
+                    $executor['type']->name,
+                    empty($executor['tags']) ? 'None' : implode(', ', $executor['tags']),
+                    empty($executor['servers']) ? 'All' : implode(', ', $executor['servers']),
+                    $executor['batch'] ?? '<comment>N/A</comment>',
+                    $executor['executed'] ? '<info>Yes</info>' : '<comment>No</comment>',
                 ];
             })
         );
