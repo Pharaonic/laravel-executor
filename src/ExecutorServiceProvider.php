@@ -2,6 +2,7 @@
 
 namespace Pharaonic\Laravel\Executor;
 
+use Illuminate\Foundation\Console\AboutCommand;
 use Illuminate\Support\ServiceProvider;
 use Pharaonic\Laravel\Executor\Classes\ExecutorManager;
 use Pharaonic\Laravel\Executor\Console\ExecuteCommand;
@@ -33,6 +34,8 @@ class ExecutorServiceProvider extends ServiceProvider
     public function boot()
     {
         if ($this->app->runningInConsole()) {
+            AboutCommand::add('Pharaonic', ['Executor' => '11.0.0']);
+
             $this->publishes(
                 [__DIR__ . '/../database/migrations' => database_path('migrations')],
                 ['pharaonic', 'migrations', 'laravel-executor']
