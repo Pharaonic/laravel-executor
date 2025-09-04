@@ -5,13 +5,13 @@ namespace Pharaonic\Laravel\Executor\Facades;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @method static array getPaths()
- * @method static void addPath(string $path)
+ * @method static array info()
+ * @method static void run()
  */
-class ExecutorPool extends Facade
+class Executor extends Facade
 {
     protected static function getFacadeAccessor()
     {
-        return 'pharaonic.executor.executorPool';
+        return 'pharaonic.executor.manager';
     }
 }
