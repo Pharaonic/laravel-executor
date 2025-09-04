@@ -31,7 +31,10 @@ class ExecutorItem
     /**
      * The file associated with the executor.
      *
-     * @var SplFileInfo
+     * @param Executor $executor
+     * @param SplFileInfo $file
+     * @param string $name
+     * @param Model|null $model
      */
     public SplFileInfo $file;
 
