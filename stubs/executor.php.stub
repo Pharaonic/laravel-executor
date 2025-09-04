@@ -1,7 +1,7 @@
 <?php
 
 use Pharaonic\Laravel\Executor\Enums\ExecutorType;
-use Pharaonic\Laravel\Executor\Executor;
+use Pharaonic\Laravel\Executor\Classes\Executor;
 
 return new class () extends Executor {
     /**
@@ -14,16 +14,16 @@ return new class () extends Executor {
     /**
      * The tags of the executor.
      *
-     * @var array|null
+     * @var array
      */
-    public $tags = null;
+    public $tags = [];
 
     /**
      * The servers that the executor will only run on.
      *
-     * @var array|null
+     * @var array
      */
-    public $servers = null;
+    public $servers = [];
 
     /**
      * Run the executor.
