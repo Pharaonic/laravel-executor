@@ -2,6 +2,7 @@
 
 namespace Pharaonic\Laravel\Executor\Classes;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\File;
 
 class ExecutorPool
@@ -63,9 +64,10 @@ class ExecutorPool
     /**
      * Collect all executors from the defined paths.
      *
+     * @param Collection $records
      * @return static
      */
-    public function collect()
+    public function collect(Collection $records)
     {
         if (! empty($this->items)) {
             $this->items = [];
@@ -82,7 +84,12 @@ class ExecutorPool
                             continue;
                         }
 
-                        array_push($this->items, new ExecutorItem($obj, $file));
+                        $name = basename($file->getFileName(), '.php');
+                        $record = $records->get($name);
+                        array_push(
+                            $this->items,
+                            new ExecutorItem($obj, $file, $name, $record)
+                        );
                     }
                 }
             }

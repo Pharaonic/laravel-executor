@@ -2,6 +2,7 @@
 
 namespace Pharaonic\Laravel\Executor\Classes;
 
+use Pharaonic\Laravel\Executor\Models\Executor as Model;
 use Symfony\Component\Finder\SplFileInfo;
 
 class ExecutorItem
@@ -14,16 +15,32 @@ class ExecutorItem
     public Executor $executor;
 
     /**
+     * The associated executor model.
+     *
+     * @var Model|null
+     */
+    protected ?Model $model = null;
+
+    /**
+     * The name of the executor.
+     *
+     * @var string
+     */
+    public string $name;
+
+    /**
      * The file associated with the executor.
      *
      * @var SplFileInfo
      */
     public SplFileInfo $file;
 
-    public function __construct(Executor $executor, SplFileInfo $file)
+    public function __construct(Executor $executor, SplFileInfo $file, string $name, ?Model $model = null)
     {
         $this->executor = $executor;
         $this->file = $file;
+        $this->name = $name;
+        $this->model = $model;
     }
 
     /**
@@ -34,12 +51,15 @@ class ExecutorItem
     public function info()
     {
         return [
-            'name' => basename($this->file->getFileName(), '.php'),
+            'name' => $this->name,
             'path' => $this->file->getRealPath(),
 
-            'type' => $this->executor->type->name,
+            'type' => $this->executor->type,
             'tags' => $this->executor->tags ?: null,
             'servers' => $this->executor->servers ?: null,
+
+            'executed' => $this->model?->executed > 0,
+            'batch' => $this->model?->batch,
         ];
     }
 
