@@ -47,24 +47,30 @@ class ExecutorPool
     }
 
     /**
-     * Return all executors paths from all pools.
+     * Collect all executors from the defined paths.
      *
-     * @return array
+     * @return void
      */
     public function collect()
     {
-        $list = [];
+        if (! empty($this->items)) {
+            return;
+        }
 
         foreach ($this->paths as $path) {
             if (File::isDirectory($path) && ! File::isEmptyDirectory($path, true)) {
-                foreach (File::files($path) as $executor) {
-                    if ($executor->getExtension() === 'php') {
-                        array_push($list, $executor->getRealPath());
+                foreach (File::files($path) as $file) {
+                    if ($file->getExtension() === 'php') {
+                        $obj = include $file->getRealPath();
+
+                        if (! $obj instanceof Executor) {
+                            continue;
+                        }
+
+                        array_push($this->items, new ExecutorItem($obj, $file));
                     }
                 }
             }
         }
-
-        return $list;
     }
 }

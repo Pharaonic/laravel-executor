@@ -2,15 +2,28 @@
 
 namespace Pharaonic\Laravel\Executor\Classes;
 
+use Symfony\Component\Finder\SplFileInfo;
+
 class ExecutorItem
 {
+    /**
+     * The executor instance.
+     *
+     * @var Executor
+     */
     public Executor $executor;
-    public string $path;
 
-    public function __construct(Executor $executor, string $path)
+    /**
+     * The file associated with the executor.
+     *
+     * @var SplFileInfo
+     */
+    public SplFileInfo $file;
+
+    public function __construct(Executor $executor, SplFileInfo $file)
     {
         $this->executor = $executor;
-        $this->path = $path;
+        $this->file = $file;
     }
 
     /**
@@ -21,10 +34,32 @@ class ExecutorItem
     public function info()
     {
         return [
-            'type' => $this->executor->type,
-            'tags' => $this->executor->tags,
-            'servers' => $this->executor->servers,
-            'path' => $this->path,
+            'name' => basename($this->file->getFileName(), '.php'),
+            'path' => $this->file->getRealPath(),
+
+            'type' => $this->executor->type->name,
+            'tags' => $this->executor->tags ?: null,
+            'servers' => $this->executor->servers ?: null,
         ];
+    }
+
+    /**
+     * Run the executor.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        $this->executor->up();
+    }
+
+    /**
+     * Reverse the executor.
+     *
+     * @return void
+     */
+    public function reverse()
+    {
+        $this->executor->down();
     }
 }
