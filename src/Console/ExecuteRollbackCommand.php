@@ -37,9 +37,20 @@ class ExecuteRollbackCommand extends Command
             return 1;
         }
 
+        $manager = app('pharaonic.executor.manager');
+        $items = $manager->pool->collect($manager->getRecords())->getItems();
+
+        foreach ($items as $item) {
+            if ($item->model && in_array($item->model->batch, $batches)) {
+                $this->info("Rolling back {$item->name}...");
+
+                $item->rollback();
+            }
+        }
+
         Executor::whereIn('batch', $batches)->delete();
 
-        $this->info('Executors has been rollbacked successfully.');
+        $this->info('Executors has been rollback successfully.');
 
         return 0;
     }
