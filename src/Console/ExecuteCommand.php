@@ -46,7 +46,7 @@ class ExecuteCommand extends Command
                 $toRun[] = $item;
             }
         }
-        
+
         if (empty($toRun)) {
             $this->warn('There are no executors need to be executed.');
         } else {
