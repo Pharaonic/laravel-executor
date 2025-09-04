@@ -117,13 +117,12 @@ class ExecutorItem
     }
 
     /**
-     * Reverse the executor.
+     * Rollback the executor.
      *
      * @return void
      */
-    public function reverse()
+    public function rollback()
     {
         $this->executor->down();
-        $this->model?->delete();
     }
 }
