@@ -11,7 +11,14 @@ class ExecutorPool
      *
      * @var array
      */
-    private array $paths = [];
+    protected array $paths = [];
+
+    /**
+     * All executors items.
+     *
+     * @var array
+     */
+    protected array $items = [];
 
     public function __construct()
     {
@@ -44,10 +51,10 @@ class ExecutorPool
      *
      * @return array
      */
-    public function getExecutorsPaths()
+    public function collect()
     {
         $list = [];
-
+        
         foreach ($this->paths as $path) {
             if (File::isDirectory($path) && ! File::isEmptyDirectory($path, true)) {
                 foreach (File::files($path) as $executor) {
