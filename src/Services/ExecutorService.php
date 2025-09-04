@@ -48,7 +48,7 @@ final class ExecutorService
                 'type' => $class->getProperty('type')->getDefaultValue(),
                 'tag' => $class->getProperty('tag')->getDefaultValue(),
                 'path' => $class->getFileName(),
-                'model' => $db[$name] ?? null
+                'model' => $db[$name] ?? null,
             ];
 
             if ($executor['model']) {
@@ -61,6 +61,7 @@ final class ExecutorService
                     $executor['model']->save();
                 }
             }
+
             return $executor;
         }, $this->getPaths()))->keyBy('name');
     }
@@ -103,7 +104,7 @@ final class ExecutorService
     {
         return (Executor::orderBy('batch', 'desc')->first()?->batch ?? 0) + 1;
     }
-    
+
     /**
      * Get the paths of the executors.
      *

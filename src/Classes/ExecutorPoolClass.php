@@ -6,7 +6,7 @@ class ExecutorPoolClass
 {
     /**
      * These paths for all pools of executors.
-     * 
+     *
      * @var array
      */
     private array $paths = [];
@@ -18,7 +18,7 @@ class ExecutorPoolClass
 
     /**
      * Return all pools of executors.
-     * 
+     *
      * @return array
      */
     public function getPaths(): array
@@ -28,7 +28,7 @@ class ExecutorPoolClass
 
     /**
      * Add a new path to executors pools.
-     * 
+     *
      * @param string $path
      * @return void
      */

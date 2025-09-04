@@ -67,11 +67,11 @@ class ExecuteMakeCommand extends GeneratorCommand
      */
     protected function setTypeProperty(string &$stub)
     {
-        if (!$this->option('once')) {
+        if (! $this->option('once')) {
             $stub = str_replace(
                 [
                     "{{ type }}\n",
-                    "{{ type-use }}\n"
+                    "{{ type-use }}\n",
                 ],
                 '',
                 $stub
@@ -101,8 +101,9 @@ class ExecuteMakeCommand extends GeneratorCommand
      */
     protected function setTagProperty(string &$stub)
     {
-        if (!$this->option('tag')) {
+        if (! $this->option('tag')) {
             $stub = str_replace("{{ tag }}\n", '', $stub);
+
             return;
         }
 

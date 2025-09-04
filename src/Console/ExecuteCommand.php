@@ -27,7 +27,7 @@ class ExecuteCommand extends Command
      */
     public function handle(ExecutorService $service)
     {
-        if (!$service->isExists()) {
+        if (! $service->isExists()) {
             $this->warn('There are no executors need to be executed.');
         }
 

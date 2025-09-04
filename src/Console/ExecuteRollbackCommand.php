@@ -24,7 +24,7 @@ class ExecuteRollbackCommand extends Command
 
     /**
      * Execute the console command.
-     * 
+     *
      * @return int
      */
     public function handle()
@@ -33,6 +33,7 @@ class ExecuteRollbackCommand extends Command
 
         if (empty($batches)) {
             $this->error('There are no executors has been found.');
+
             return 1;
         }
 

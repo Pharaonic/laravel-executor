@@ -30,23 +30,23 @@ abstract class Executor
 
     /**
      * Execute it.
-     * 
+     *
      * @return void
      */
     abstract public function handle(): void;
 
     /**
      * Create a new Executor instance.
-     * 
+     *
      * @return void
      */
     public function __construct()
     {
-        if (!($this->type instanceof ExecutorType)) {
+        if (! ($this->type instanceof ExecutorType)) {
             throw new \Exception('The type of the executor must be an instance of ExecutorType.');
         }
 
-        if (!is_null($this->tag) && !is_string($this->tag) && !is_array($this->tag)) {
+        if (! is_null($this->tag) && ! is_string($this->tag) && ! is_array($this->tag)) {
             throw new \Exception('The tag of the executor must be a string or an array or null.');
         }
 

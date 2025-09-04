@@ -39,7 +39,7 @@ class ExecutorServiceProvider extends ServiceProvider
             // Load Migrations
             $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
 
-            // Load Commands 
+            // Load Commands
             $this->commands([
                 ExecuteCommand::class,
                 ExecuteMakeCommand::class,

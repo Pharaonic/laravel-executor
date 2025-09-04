@@ -74,8 +74,8 @@ class ExecutorTest extends TestCase
     public function testStatusOfExecutors()
     {
         $this->testMakeExecutor();
-        
-        $executors = (new ExecutorService)->sync();
+
+        $executors = (new ExecutorService())->sync();
 
         $this->artisan('execute:status')
             ->assertOk()

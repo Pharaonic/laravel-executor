@@ -14,7 +14,7 @@ enum ExecutorType: int
     /**
      * Check if the executor will be executed always.
      *
-     * @return boolean
+     * @return bool
      */
     public function isAlways(): bool
     {
@@ -24,7 +24,7 @@ enum ExecutorType: int
     /**
      * Check if the executor will be executed once.
      *
-     * @return boolean
+     * @return bool
      */
     public function isOnce(): bool
     {
