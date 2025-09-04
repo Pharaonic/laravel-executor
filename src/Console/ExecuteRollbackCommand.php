@@ -32,9 +32,9 @@ class ExecuteRollbackCommand extends Command
         $batches = Executor::orderBy('batch', 'desc')->groupBy('batch')->limit($this->option('steps'))->pluck('batch')->toArray();
 
         if (empty($batches)) {
-            $this->error('There are no executors has been found.');
+            $this->warn('There are no executors has been found.');
 
-            return 1;
+            return 0;
         }
 
         $manager = app('pharaonic.executor.manager');
