@@ -49,7 +49,7 @@ class ExecutorServiceProvider extends ServiceProvider
             $this->commands([
                 ExecuteCommand::class,
                 ExecuteMakeCommand::class,
-            //     ExecuteRollbackCommand::class,
+                ExecuteRollbackCommand::class,
                 ExecuteFreshCommand::class,
                 ExecuteStatusCommand::class,
             ]);
