@@ -39,7 +39,7 @@ class ExecuteMakeCommand extends GeneratorCommand
     {
         return __DIR__ . '/../../stubs/executor.php.stub';
     }
-    
+
     /**
      * Get the destination class path.
      *
