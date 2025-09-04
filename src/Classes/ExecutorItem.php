@@ -20,7 +20,7 @@ class ExecutorItem
      *
      * @var Model|null
      */
-    protected ?Model $model = null;
+    public ?Model $model = null;
 
     /**
      * The name of the executor.
