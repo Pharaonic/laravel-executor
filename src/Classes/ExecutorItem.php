@@ -56,13 +56,11 @@ class ExecutorItem
         return [
             'name' => $this->name,
             'path' => $this->file->getRealPath(),
-
             'type' => $this->executor->type,
             'tags' => $this->executor->tags ?: null,
             'servers' => $this->executor->servers ?: null,
-
-            'executed' => $this->model?->executed > 0,
             'batch' => $this->model?->batch,
+            'executed' => $this->model?->executed > 0,
         ];
     }
 
