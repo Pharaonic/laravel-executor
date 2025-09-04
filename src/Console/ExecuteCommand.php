@@ -33,31 +33,27 @@ class ExecuteCommand extends Command
         $tags = $this->option('tags');
         $toRun = [];
 
-        if ($name) {
-            if (! isset($items[$name])) {
-                $this->warn("There is no executor with name [$name].");
+        foreach ($items as $item) {
+            if ($name && $item->name != $name) {
+                continue;
             }
 
-            if ($items[$name]->isExecutable($tags)) {
-                $toRun[] = $items[$name];
+            if ($tags && ! array_intersect(explode(',', $tags), $item->tags)) {
+                continue;
             }
-        }
 
-        if ($tags) {
-            foreach ($items as $item) {
-                if ($item->isExecutable($tags) && ! in_array($item, $toRun)) {
-                    $toRun[] = $item;
-                }
+            if ($item->isExecutable()) {
+                $toRun[] = $item;
             }
         }
-
+        
         if (empty($toRun)) {
             $this->warn('There are no executors need to be executed.');
         } else {
             $batch = $manager->getNextBatchNumber();
 
             foreach ($toRun as $item) {
-                $this->info("Executing {$item->getName()}...");
+                $this->info("Executing {$item->name}...");
 
                 $item->run($batch);
             }
