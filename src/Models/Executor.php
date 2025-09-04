@@ -76,7 +76,7 @@ class Executor extends Model
     /**
      * Check if the executor is new (never executed).
      *
-     * @return boolean
+     * @return bool
      */
     public function isNew()
     {
@@ -86,7 +86,7 @@ class Executor extends Model
     /**
      * Check if the executor is executable.
      *
-     * @return boolean
+     * @return bool
      */
     public function isExecutable()
     {

@@ -2,7 +2,6 @@
 
 namespace Pharaonic\Laravel\Executor\Tests;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Pharaonic\Laravel\Executor\Models\Executor;
 use Pharaonic\Laravel\Executor\Services\ExecutorService;
 
