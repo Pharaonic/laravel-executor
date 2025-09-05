@@ -8,12 +8,12 @@ use Pharaonic\Laravel\Executor\ExecutorServiceProvider;
 
 class TestCase extends OrchestraTestCase
 {
-    // public function setUp(): void
-    // {
-    //     parent::setUp();
+    public function setUp(): void
+    {
+        parent::setUp();
 
-    //     File::deleteDirectory(base_path('executors'));
-    // }
+        File::deleteDirectory(base_path('executors'));
+    }
 
     /**
      * add the package provider
