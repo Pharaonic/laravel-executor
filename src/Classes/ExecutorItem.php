@@ -84,8 +84,8 @@ class ExecutorItem
 
         $this->model?->fill([
             'type' => $this->executor->type,
-            'tags' => $this->executor->tags,
-            'servers' => $this->executor->servers,
+            'tags' => $this->executor->tags ?: null,
+            'servers' => $this->executor->servers ?: null,
         ]);
 
         return $this->model?->isExecutable() ?? true;

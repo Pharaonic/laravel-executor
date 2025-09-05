@@ -40,7 +40,7 @@ class ExecuteCommand extends Command
                 continue;
             }
 
-            if ($tags && ! array_intersect(explode(',', $tags), $item->tags)) {
+            if ($tags && ! array_intersect(explode(',', $tags), $item->executor->tags)) {
                 continue;
             }
 
