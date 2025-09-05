@@ -1,6 +1,0 @@
-    /**
-     * The type of the executor.
-     *
-     * @var ExecutorType
-     */
-    public $type = ExecutorType::Once;

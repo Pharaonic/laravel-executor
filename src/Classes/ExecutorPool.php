@@ -1,0 +1,111 @@
+<?php
+
+namespace Pharaonic\Laravel\Executor\Classes;
+
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\File;
+
+class ExecutorPool
+{
+    /**
+     * These paths for all pools of executors.
+     *
+     * @var array
+     */
+    protected array $paths = [];
+
+    /**
+     * All executors items.
+     *
+     * @var array
+     */
+    protected array $items = [];
+
+    public function __construct()
+    {
+        $this->paths = [base_path('executors')];
+    }
+
+    /**
+     * Add a new path to executors pools.
+     *
+     * @param string $path
+     * @return static
+     */
+    public function addPath(string $path)
+    {
+        array_push($this->paths, $path);
+
+        return $this;
+    }
+
+    /**
+     * Return all pools of executors.
+     *
+     * @return array
+     */
+    public function getPaths(): array
+    {
+        return $this->paths;
+    }
+
+    /**
+     * Get info about all executors.
+     *
+     * @return array
+     */
+    public function info()
+    {
+        return collect($this->items)->map(function ($item) {
+            return $item->info();
+        })->toArray();
+    }
+
+    /**
+     * Collect all executors from the defined paths.
+     *
+     * @param Collection $records
+     * @return static
+     */
+    public function collect(Collection $records)
+    {
+        if (! empty($this->items)) {
+            $this->items = [];
+        }
+
+        foreach ($this->paths as $path) {
+            if (File::isDirectory($path) && ! File::isEmptyDirectory($path, true)) {
+                foreach (File::files($path) as $file) {
+                    if ($file->getExtension() === 'php') {
+                        $obj = include $file->getRealPath();
+
+                        if (! $obj instanceof Executor) {
+                            continue;
+                        }
+
+                        $name = basename($file->getFileName(), '.php');
+                        $record = $records->get($name);
+
+                        if (isset($this->items[$name])) {
+                            throw new \Exception("Duplicate Executor name [$name] in file: " . $file->getRealPath());
+                        }
+
+                        $this->items[$name] = new ExecutorItem($obj, $file, $name, $record);
+                    }
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Get all collected executors items.
+     *
+     * @return array
+     */
+    public function getItems()
+    {
+        return $this->items;
+    }
+}

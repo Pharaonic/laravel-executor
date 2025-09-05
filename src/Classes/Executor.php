@@ -1,15 +1,24 @@
 <?php
 
-namespace Pharaonic\Laravel\Executor;
+namespace Pharaonic\Laravel\Executor\Classes;
 
+use Illuminate\Console\Concerns\InteractsWithIO;
 use Illuminate\Console\OutputStyle;
 use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Support\Facades\Artisan;
 use Pharaonic\Laravel\Executor\Enums\ExecutorType;
-use Pharaonic\Laravel\Executor\Traits\InteractsWithIO;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
+/**
+ * @property ExecutorType $type
+ * @property array $tags
+ * @property array $servers
+ * @method void up()
+ * @method void down()
+ * @method PendingDispatch job(string|object $job, ...$arguments)
+ * @method int command(string $command, array $parameters = [])
+ */
 abstract class Executor
 {
     use InteractsWithIO;
@@ -22,32 +31,50 @@ abstract class Executor
     public $type = ExecutorType::Always;
 
     /**
-     * The tag of the executor.
+     * The tags of the executor.
      *
-     * @var string|null
+     * @var array
      */
-    public $tag = null;
+    public $tags = [];
 
     /**
-     * Execute it.
-     * 
+     * The servers of the executor.
+     *
+     * @var array
+     */
+    public $servers = [];
+
+    /**
+     * Run the executor.
+     *
      * @return void
      */
-    abstract public function handle(): void;
+    abstract public function up(): void;
+
+    /**
+     * Reverse the executor.
+     *
+     * @return void
+     */
+    abstract public function down(): void;
 
     /**
      * Create a new Executor instance.
-     * 
+     *
      * @return void
      */
     public function __construct()
     {
-        if (!($this->type instanceof ExecutorType)) {
+        if (! ($this->type instanceof ExecutorType)) {
             throw new \Exception('The type of the executor must be an instance of ExecutorType.');
         }
 
-        if (!is_null($this->tag) && !is_string($this->tag) && !is_array($this->tag)) {
-            throw new \Exception('The tag of the executor must be a string or an array or null.');
+        if (! is_array($this->tags)) {
+            throw new \Exception('The tags of the executor must be an array.');
+        }
+
+        if (! is_array($this->servers)) {
+            throw new \Exception('The servers of the executor must be an array of ips.');
         }
 
         $this->output = new OutputStyle(new ArgvInput(), new ConsoleOutput());

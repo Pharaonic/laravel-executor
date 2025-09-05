@@ -3,6 +3,7 @@
 namespace Pharaonic\Laravel\Executor\Console;
 
 use Illuminate\Console\Command;
+use Pharaonic\Laravel\Executor\Facades\Executor as ExecutorFacade;
 use Pharaonic\Laravel\Executor\Models\Executor;
 
 class ExecuteRollbackCommand extends Command
@@ -20,11 +21,11 @@ class ExecuteRollbackCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Rollback the lastest executors that has been inserted.';
+    protected $description = 'Rollback the latest executors that have been inserted.';
 
     /**
      * Execute the console command.
-     * 
+     *
      * @return int
      */
     public function handle()
@@ -32,13 +33,26 @@ class ExecuteRollbackCommand extends Command
         $batches = Executor::orderBy('batch', 'desc')->groupBy('batch')->limit($this->option('steps'))->pluck('batch')->toArray();
 
         if (empty($batches)) {
-            $this->error('There are no executors has been found.');
-            return 1;
+            $this->warn('There are no executors has been found.');
+
+            return 0;
+        }
+
+        $items = ExecutorFacade::getPool()
+            ->collect(ExecutorFacade::getRecords())
+            ->getItems();
+
+        foreach ($items as $item) {
+            if ($item->model && in_array($item->model->batch, $batches)) {
+                $this->info("Rolling back {$item->name}...");
+
+                $item->rollback();
+            }
         }
 
         Executor::whereIn('batch', $batches)->delete();
 
-        $this->info('Executors has been rollbacked successfully.');
+        $this->info('Executors has been rollback successfully.');
 
         return 0;
     }

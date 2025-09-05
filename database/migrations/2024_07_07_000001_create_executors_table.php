@@ -14,15 +14,17 @@ class CreateExecutorsTable extends Migration
      */
     public function up()
     {
-        Schema::create('executors', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedTinyInteger('type')->default(ExecutorType::Always);
-            $table->string('executor');
-            $table->string('tag')->nullable();
-            $table->integer('batch')->default(1);
-            $table->integer('executed')->default(0);
-            $table->timestamp('last_executed_at')->nullable();
-        });
+        Schema::connection(config('pharaonic.executor.connection', config('database.default')))
+            ->create(config('pharaonic.executor.table', 'executors'), function (Blueprint $table) {
+                $table->id();
+                $table->unsignedTinyInteger('type')->default(ExecutorType::Always);
+                $table->string('name');
+                $table->json('tags')->nullable();
+                $table->json('servers')->nullable();
+                $table->integer('batch')->nullable();
+                $table->integer('executed')->default(0);
+                $table->timestamp('last_executed_at')->nullable();
+            });
     }
 
     /**
@@ -32,6 +34,7 @@ class CreateExecutorsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('executors');
+        Schema::connection(config('pharaonic.executor.connection', config('database.default')))
+            ->dropIfExists(config('pharaonic.executor.table', 'executors'));
     }
 }
