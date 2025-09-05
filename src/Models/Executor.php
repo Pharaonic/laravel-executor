@@ -80,7 +80,7 @@ class Executor extends Model
      */
     public function isNew()
     {
-        return $this->executed == 0;
+        return $this->executed === 0;
     }
 
     /**
