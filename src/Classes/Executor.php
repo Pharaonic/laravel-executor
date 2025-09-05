@@ -107,4 +107,4 @@ abstract class Executor
     {
         return Artisan::call($command, $parameters, $this->output);
     }
-};
+}
