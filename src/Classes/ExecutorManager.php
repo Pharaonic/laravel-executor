@@ -11,7 +11,7 @@ class ExecutorManager
      *
      * @var ExecutorPool
      */
-    public ExecutorPool $pool;
+    protected ExecutorPool $pool;
 
     /**
      * The server IPs.
@@ -23,6 +23,16 @@ class ExecutorManager
     public function __construct()
     {
         $this->pool = new ExecutorPool();
+    }
+
+    /**
+     * Get the executor pool instance.
+     *
+     * @return ExecutorPool
+     */
+    public function getPool()
+    {
+        return $this->pool;
     }
 
     /**

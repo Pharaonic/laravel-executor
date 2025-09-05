@@ -3,6 +3,7 @@
 namespace Pharaonic\Laravel\Executor\Console;
 
 use Illuminate\Console\Command;
+use Pharaonic\Laravel\Executor\Facades\Executor as ExecutorFacade;
 
 class ExecuteCommand extends Command
 {
@@ -26,8 +27,9 @@ class ExecuteCommand extends Command
      */
     public function handle()
     {
-        $manager = app('pharaonic.executor.manager');
-        $items = $manager->pool->collect($manager->getRecords())->getItems();
+        $items = ExecutorFacade::getPool()
+            ->collect(ExecutorFacade::getRecords())
+            ->getItems();
 
         $name = $this->argument('name');
         $tags = $this->option('tags');
@@ -50,7 +52,7 @@ class ExecuteCommand extends Command
         if (empty($toRun)) {
             $this->warn('There are no executors need to be executed.');
         } else {
-            $batch = $manager->getNextBatchNumber();
+            $batch = ExecutorFacade::getNextBatchNumber();
 
             foreach ($toRun as $item) {
                 $this->info("Executing {$item->name}...");
