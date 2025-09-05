@@ -3,6 +3,7 @@
 namespace Pharaonic\Laravel\Executor\Console;
 
 use Illuminate\Console\Command;
+use Pharaonic\Laravel\Executor\Facades\Executor as ExecutorFacade;
 use Pharaonic\Laravel\Executor\Models\Executor;
 
 class ExecuteRollbackCommand extends Command
@@ -20,7 +21,7 @@ class ExecuteRollbackCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Rollback the lastest executors that has been inserted.';
+    protected $description = 'Rollback the latest executors that have been inserted.';
 
     /**
      * Execute the console command.
@@ -37,8 +38,9 @@ class ExecuteRollbackCommand extends Command
             return 0;
         }
 
-        $manager = app('pharaonic.executor.manager');
-        $items = $manager->pool->collect($manager->getRecords())->getItems();
+        $items = ExecutorFacade::getPool()
+            ->collect(ExecutorFacade::getRecords())
+            ->getItems();
 
         foreach ($items as $item) {
             if ($item->model && in_array($item->model->batch, $batches)) {
