@@ -2,6 +2,9 @@
 
 namespace Pharaonic\Laravel\Executor\Console;
 
+/**
+ * @deprecated Use the make:executor command (MakeExecutorCommand).
+ */
 class MakeExecuteCommand extends ExecuteMakeCommand
 {
     /**
@@ -11,5 +14,4 @@ class MakeExecuteCommand extends ExecuteMakeCommand
      */
     protected $signature = 'make:execute {name}
                             {--path= : The path of the executor}';
-
 }

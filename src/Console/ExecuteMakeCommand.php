@@ -2,11 +2,10 @@
 
 namespace Pharaonic\Laravel\Executor\Console;
 
-use Illuminate\Console\GeneratorCommand;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str;
-
-class ExecuteMakeCommand extends GeneratorCommand
+/**
+ * @deprecated Use the make:executor command (MakeExecutorCommand).
+ */
+class ExecuteMakeCommand extends MakeExecutorCommand
 {
     /**
      * The name and signature of the console command.
@@ -17,63 +16,21 @@ class ExecuteMakeCommand extends GeneratorCommand
                             {--path= : The path of the executor}';
 
     /**
-     * The console command description.
+     * Indicates whether the command should be shown in the Artisan command list.
      *
-     * @var string
+     * @var bool
      */
-    protected $description = 'Create a new executor class';
+    protected $hidden = true;
 
     /**
-     * The type of class being generated.
+     * Execute the console command.
      *
-     * @var string
+     * @return bool|null
      */
-    protected $type = 'Executor';
-
-    /**
-     * Get the stub file for the generator.
-     *
-     * @return string
-     */
-    protected function getStub()
+    public function handle()
     {
-        return __DIR__ . '/../../stubs/executor.php.stub';
-    }
+        $this->warn("The {$this->getName()} command is deprecated. Use make:executor instead.");
 
-    /**
-     * Get the destination class path.
-     *
-     * @param  string  $name
-     * @return string
-     */
-    protected function getPath($name)
-    {
-        $name = Str::snake(
-            trim(
-                str_replace(
-                    '\\',
-                    '/',
-                    Str::replaceFirst(
-                        $this->rootNamespace(),
-                        '',
-                        $name
-                    )
-                )
-            )
-        );
-
-        File::ensureDirectoryExists($dir = base_path($this->option('path') ?? 'executors'));
-
-        return $dir . DIRECTORY_SEPARATOR . $this->getDatePrefix() . '_' . $name . '.php';
-    }
-
-    /**
-     * Get the date prefix for the migration.
-     *
-     * @return string
-     */
-    protected function getDatePrefix()
-    {
-        return date('Y_m_d_His');
+        return parent::handle();
     }
 }

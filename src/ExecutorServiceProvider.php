@@ -11,6 +11,7 @@ use Pharaonic\Laravel\Executor\Console\ExecuteMakeCommand;
 use Pharaonic\Laravel\Executor\Console\ExecuteRollbackCommand;
 use Pharaonic\Laravel\Executor\Console\ExecuteStatusCommand;
 use Pharaonic\Laravel\Executor\Console\MakeExecuteCommand;
+use Pharaonic\Laravel\Executor\Console\MakeExecutorCommand;
 
 class ExecutorServiceProvider extends ServiceProvider
 {
@@ -48,8 +49,9 @@ class ExecutorServiceProvider extends ServiceProvider
             );
 
             $this->commands([
-                MakeExecuteCommand::class,
+                MakeExecutorCommand::class,
                 ExecuteMakeCommand::class,
+                MakeExecuteCommand::class,
                 ExecuteCommand::class,
                 ExecuteRollbackCommand::class,
                 ExecuteFreshCommand::class,
