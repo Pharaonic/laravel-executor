@@ -30,6 +30,7 @@ Configuration keys (`pharaonic.executor.*`), publish tags, and registered Blade,
 
 - The package requires `laravel/framework`, not single `illuminate/*` components: `job()` returns `Illuminate\Foundation\Bus\PendingDispatch` and the package relies on the foundation path helpers.
 - The migration file name `2024_07_07_000001_create_executors_table.php` never changes, or applications run it again.
+- 1.x created the same migration file with another schema (`executor`, `tag`). `2026_10_25_000001_upgrade_executors_table_from_1x.php` converts that table and does nothing on any other table; keep it on every line.
 - `tests/Compatibility` pins the names kept from 1.x, 11.x, and 12.x.
 
 ## Branch notes
