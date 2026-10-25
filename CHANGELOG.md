@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented here.
 
+## 13.0.0 - Unreleased
+
+First release of the Laravel 13 line, built from 12.1.0.
+
+### Compatibility
+
+- Laravel 13 on PHP 8.3, 8.4 or 8.5. PHP 8.2 is no longer supported on this line.
+- Requires `pharaonic/php-dot-array` `~8.3.1`, `~8.4.2` or `~8.5.2`, and `pharaonic/php-smart-enum` `~8.3.0`, `~8.4.0` or `~8.5.1`, matching your PHP version.
+- The same API and behavior as 12.1.0. Coming from 12.0.x or 1.x, read the 12.1.0 section below and the upgrade guide.
+
 ## 12.1.0 - 2026-10-25
 
 First release of the new Laravel 12 line, built from 11.1.0.
