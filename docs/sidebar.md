@@ -1,7 +1,7 @@
 - Getting Started
   - [Overview](#overview)
   - [Installation](#installation)
-  - [Upgrading from 1.x](#upgrading)
+  - [Upgrading](#upgrading)
   - [Configuration](#configuration)
 - Usage
   - [Basic Usage](#basic-usage)
