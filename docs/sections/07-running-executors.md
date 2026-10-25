@@ -22,6 +22,8 @@ If the lock isn't free within `pharaonic.executor.lock.seconds` (600 by default)
 Another server has been running the executors for more than 600 seconds.
 ```
 
+If the cache store itself fails, for example a `database` store without its tables, the command stops with exit code `1` before running any executor, and prints the store's error.
+
 :::warning Shared Cache Store
 The lock only works across servers when they share its cache store, such as `redis`, `database`, `memcached` or `dynamodb`. With the `file` or `array` store, each server has its own lock. Set the store with `EXECUTOR_LOCK_STORE`.
 :::
