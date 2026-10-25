@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here.
 
-## 11.1.0 - Unreleased
+## 11.1.0 - 2026-10-25
 
 First release of the new Laravel 11 line, built from 10.0.2.
 
