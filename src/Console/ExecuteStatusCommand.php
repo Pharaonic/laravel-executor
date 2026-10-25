@@ -31,7 +31,7 @@ class ExecuteStatusCommand extends Command
             collect(Executor::info())->map(function ($executor) {
                 return [
                     $executor['name'],
-                    $executor['type']->name,
+                    $executor['type']->label(),
                     empty($executor['tags']) ? 'None' : implode(', ', $executor['tags']),
                     empty($executor['servers']) ? 'All' : implode(', ', $executor['servers']),
                     $executor['batch'] ?? '<comment>N/A</comment>',

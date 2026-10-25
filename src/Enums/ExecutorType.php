@@ -2,32 +2,39 @@
 
 namespace Pharaonic\Laravel\Executor\Enums;
 
-/**
- * @method bool isAlways()
- * @method bool isOnce()
- */
+use Pharaonic\SmartEnum\SmartEnum;
+
 enum ExecutorType: int
 {
-    case Always = 1;
-    case Once = 2;
+    use SmartEnum;
+
+    case ALWAYS = 1;
+    case ONCE = 2;
 
     /**
      * Check if the executor will be executed always.
-     *
-     * @return bool
      */
     public function isAlways(): bool
     {
-        return $this->value === self::Always->value;
+        return $this === self::ALWAYS;
     }
 
     /**
      * Check if the executor will be executed once.
-     *
-     * @return bool
      */
     public function isOnce(): bool
     {
-        return $this->value === self::Once->value;
+        return $this === self::ONCE;
+    }
+
+    /**
+     * Human-readable label of the type.
+     */
+    public function label(): string
+    {
+        return match ($this) {
+            self::ALWAYS => 'Always',
+            self::ONCE => 'Once',
+        };
     }
 }

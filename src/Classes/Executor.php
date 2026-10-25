@@ -28,7 +28,7 @@ abstract class Executor
      *
      * @var ExecutorType
      */
-    public $type = ExecutorType::Always;
+    public $type = ExecutorType::ALWAYS;
 
     /**
      * The tags of the executor.
