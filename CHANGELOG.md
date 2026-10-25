@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here.
 
+## 10.0.3 - Unreleased
+
+### Fixed
+
+- The `last_executed_at` property of the executor model is typed `CarbonInterface|null`, which matches what `now()` returns on newer Laravel releases, so static analysis accepts assigning it.
+
 ## 10.0.2 - 2026-10-25
 
 ### Fixed

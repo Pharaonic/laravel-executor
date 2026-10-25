@@ -13,7 +13,7 @@ use Pharaonic\Laravel\Executor\Enums\ExecutorType;
  * @property array<array-key, mixed>|null $servers
  * @property int|null $batch
  * @property int $executed
- * @property \Illuminate\Support\Carbon|null $last_executed_at
+ * @property \Carbon\CarbonInterface|null $last_executed_at
  */
 class Executor extends Model
 {
