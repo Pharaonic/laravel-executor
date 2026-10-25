@@ -20,6 +20,10 @@ The executors table still has the 1.x shape. Run `php artisan migrate`, which co
 
 Another `php artisan execute` holds the lock: a deploy is still running, or a run stopped before releasing it and the lock hasn't expired yet. Wait for the other deploy, or raise `EXECUTOR_LOCK_SECONDS` when your executors take longer than 600 seconds.
 
+### "Couldn't take the executor lock on the [database] cache store"
+
+`php artisan execute` couldn't reach the cache store of its lock, so it stopped before running anything. The message ends with the store's own error. With the `database` store, create the cache tables (`php artisan cache:table` on Laravel 10, then `php artisan migrate`), or point `EXECUTOR_LOCK_STORE` at another store every server shares, such as `redis`.
+
 ### A `ONCE` executor ran on two servers
 
 The servers don't share the lock's cache store. Point `EXECUTOR_LOCK_STORE` at a store every server uses, such as `redis` or `database`.
