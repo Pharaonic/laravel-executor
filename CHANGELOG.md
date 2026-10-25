@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here.
 
+## 10.0.2 - Unreleased
+
+### Fixed
+
+- When the cache store of the lock fails, for example a `database` store without its tables, `php artisan execute` stops before running any executor with `Couldn't take the executor lock on the [store] cache store: …` and exit code `1`, instead of a raw store error. Errors thrown by executors are reported as before, and the lock is released after them.
+
 ## 10.0.1 - 2026-10-25
 
 ### Fixed
