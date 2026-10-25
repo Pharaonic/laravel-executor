@@ -2,6 +2,7 @@
 
 namespace Pharaonic\Laravel\Executor;
 
+use Composer\InstalledVersions;
 use Illuminate\Foundation\Console\AboutCommand;
 use Illuminate\Support\ServiceProvider;
 use Pharaonic\Laravel\Executor\Classes\ExecutorManager;
@@ -22,8 +23,7 @@ class ExecutorServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
-        $this->mergeConfigFrom(__DIR__ . '/../config/executor.php', 'pharaonic.executor');
+        $this->mergeConfigFrom(__DIR__.'/../config/executor.php', 'pharaonic.executor');
 
         $this->app->singleton('pharaonic.executor.manager', ExecutorManager::class);
     }
@@ -35,18 +35,21 @@ class ExecutorServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+
         if ($this->app->runningInConsole()) {
-            AboutCommand::add('Pharaonic', ['Executor' => '11.0.0']);
+            AboutCommand::add('Pharaonic', [
+                'Executor' => InstalledVersions::getPrettyVersion('pharaonic/laravel-executor') ?? 'unknown',
+            ]);
 
-            $this->publishes(
-                [__DIR__ . '/../database/migrations' => database_path('migrations')],
-                ['pharaonic', 'migrations', 'laravel-executor']
-            );
+            // `config` and `migrations` are the 1.x tags, kept for compatibility.
+            $this->publishes([
+                __DIR__.'/../config/executor.php' => $this->app->configPath('pharaonic/executor.php'),
+            ], ['pharaonic', 'laravel-executor', 'pharaonic-config', 'executor-config', 'config']);
 
-            $this->publishes(
-                [__DIR__ . '/../config/executor.php' => config_path('pharaonic/executor.php')],
-                ['pharaonic', 'config', 'laravel-executor']
-            );
+            $this->publishes([
+                __DIR__.'/../database/migrations' => $this->app->databasePath('migrations'),
+            ], ['pharaonic', 'laravel-executor', 'pharaonic-migrations', 'executor-migrations', 'migrations']);
 
             $this->commands([
                 MakeExecutorCommand::class,
