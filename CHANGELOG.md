@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here.
 
+## 11.1.1 - Unreleased
+
+### Fixed
+
+- The `last_executed_at` property of the executor model is typed `CarbonInterface|null`, which matches what `now()` returns on newer Laravel releases, so static analysis accepts assigning it.
+
 ## 11.1.0 - 2026-10-25
 
 First release of the new Laravel 11 line, built from 10.0.2.
