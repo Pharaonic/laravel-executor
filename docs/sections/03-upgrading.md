@@ -1,16 +1,16 @@
 ## Upgrading
 
-Pick the part for the release you're on: 11.0.x needs a few renames, while 1.x needs a table migration and changes to every executor file.
+Pick the part for the release you're on: 12.0.x needs a few renames, while 1.x needs a table migration and changes to every executor file.
 
-### From 11.0.x
+### From 12.0.x
 
-11.1.0 keeps the table and the executor classes of 11.0.x; `php artisan migrate` has nothing to convert. Update the case names and check the behavior changes below.
+12.1.0 keeps the table and the executor classes of 12.0.x; `php artisan migrate` has nothing to convert. Update the case names and check the behavior changes below.
 
 #### Executor Types Are Upper Case
 
 The `ExecutorType` cases are renamed, and the old names are removed. Executors that still use them stop with an `Undefined constant` error, so update every executor file:
 
-| 11.0.x | 11.1.0 |
+| 12.0.x | 12.1.0 |
 | --- | --- |
 | `ExecutorType::Always` | `ExecutorType::ALWAYS` |
 | `ExecutorType::Once` | `ExecutorType::ONCE` |
@@ -19,7 +19,7 @@ The `ExecutorType` cases are renamed, and the old names are removed. Executors t
 
 #### Behavior Changes
 
-- An executor with `$servers` runs only on those servers, including on its first run. In 11.0.x, the first run happened on every server.
+- An executor with `$servers` runs only on those servers, including on its first run. In 12.0.x, the first run happened on every server.
 - `php artisan execute` takes a cache lock. When several servers deploy at the same time, point `EXECUTOR_LOCK_STORE` at a store they share, as described in [Running Executors](#running-executors).
 - Invalid executor declarations throw `InvalidArgumentException`, and duplicate executor names throw `LogicException`, instead of `Exception`.
 
@@ -35,14 +35,14 @@ The deprecated names still work.
 
 ### From 1.x
 
-On Laravel 11, this line replaces 1.x. Executors become classes with `up()` and `down()`, and the executors table gets new columns. Plan the upgrade as a deploy of its own: update the package, migrate the table, then update every executor file.
+On Laravel 12, this line replaces 1.x. Executors become classes with `up()` and `down()`, and the executors table gets new columns. Plan the upgrade as a deploy of its own: update the package, migrate the table, then update every executor file.
 
 #### 1. Update the Package
 
 Composer doesn't move from 1.x to this line on its own, so require it explicitly:
 
 ```bash title="Terminal" no-line-numbers
-composer require pharaonic/laravel-executor:^11.1
+composer require pharaonic/laravel-executor:^12.1
 ```
 
 #### 2. Migrate the Table
