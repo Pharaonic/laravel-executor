@@ -45,7 +45,7 @@ Every server shares the executors table, so a `ONCE` executor runs on only one o
 public function up(): void
 {
     $this->command('cache:clear');
-    $this->command('scout:import', ['model' => 'App\Models\Product']);
+    $this->command('queue:restart');
 }
 ```
 
@@ -54,12 +54,12 @@ public function up(): void
 `$this->job()` dispatches a job. Pass the class name and its constructor arguments, or a job instance. It returns Laravel's pending dispatch, so you can chain `onQueue()`, `delay()` and the other dispatch options.
 
 ```php
-use App\Jobs\ReindexProducts;
+use App\Jobs\RecalculateRatings;
 
 public function up(): void
 {
-    $this->job(ReindexProducts::class, 'electronics')->onQueue('search');
-    $this->job(new ReindexProducts('books'))->delay(now()->addMinutes(5));
+    $this->job(RecalculateRatings::class, 'electronics')->onQueue('ratings');
+    $this->job(new RecalculateRatings('books'))->delay(now()->addMinutes(5));
 }
 ```
 

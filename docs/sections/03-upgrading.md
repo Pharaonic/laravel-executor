@@ -1,54 +1,106 @@
-## Upgrading
+## Upgrading from 1.x
 
-This section covers upgrading to the {release.label} line from 1.x, 11.0.x or 12.0.x.
+This line replaces 1.x for Laravel 10. Executors become classes with `up()` and `down()`, and the executors table gets new columns. Plan the upgrade as a deploy of its own: update the package, migrate the table, then update every executor file.
 
-### Executor Types Are Upper Case
+### 1. Update the Package
 
-The `ExecutorType` cases are renamed, and the old names are removed. Executors that still use them stop with an `Undefined constant` error, so update every executor file:
-
-| Before | Now |
-| --- | --- |
-| `ExecutorType::Always` | `ExecutorType::ALWAYS` |
-| `ExecutorType::Once` | `ExecutorType::ONCE` |
-
-```php title="executors/2024_07_22_100000_clear_cache.php"
-// Before
-public $type = ExecutorType::Once;
-
-// Now
-public $type = ExecutorType::ONCE;
-```
-
-You can update every executor in one step:
+Composer doesn't move from 1.x to this line on its own, so require it explicitly:
 
 ```bash title="Terminal" no-line-numbers
-sed -i 's/ExecutorType::Always/ExecutorType::ALWAYS/g; s/ExecutorType::Once/ExecutorType::ONCE/g' executors/*.php
+composer require pharaonic/laravel-executor:^10.0
 ```
 
-:::warning Case Names
-`->name` now returns `ALWAYS` or `ONCE`. If your code compares the name, compare the case itself (`$type === ExecutorType::ONCE`), call `isOnce()`, or use `label()`, which still returns `Always` or `Once`.
+### 2. Migrate the Table
+
+The package ships a migration that converts the 1.x table and keeps every record:
+
+```bash title="Terminal" no-line-numbers
+php artisan migrate
+```
+
+| 1.x column | Now |
+| --- | --- |
+| `executor` | `name` |
+| `tag` (text) | `tags` (JSON array: `cache` becomes `["cache"]`) |
+| | `servers` (new, empty) |
+
+`type`, `batch`, `executed` and `last_executed_at` keep their values, so executors that already ran don't run again. The migration only changes tables that still have the 1.x `executor` column.
+
+:::warning Back Up First
+The migration drops the `executor` and `tag` columns after copying them, and it can't be rolled back to the 1.x shape. Back up the executors table before you migrate.
 :::
 
-The stored values are unchanged (`1` for `ALWAYS`, `2` for `ONCE`), so the records already in your `executors` table keep working and nothing needs to be migrated.
+### 3. Update Every Executor File
 
-### Command Names
-
-`make:executor` is the command that creates an executor. The older `execute:make` and `make:execute` still work, print a deprecation notice, and are hidden from `php artisan list`.
-
-| Deprecated | Use |
+| 1.x | Now |
 | --- | --- |
-| `php artisan execute:make` | `php artisan make:executor` |
-| `php artisan make:execute` | `php artisan make:executor` |
+| `use Pharaonic\Laravel\Executor\Executor;` | `use Pharaonic\Laravel\Executor\Classes\Executor;` |
+| `public function handle(): void` | `public function up(): void`, plus a `down()` method |
+| `public $tag = 'cache';` | `public $tags = ['cache'];` |
+| `ExecutorType::Always` / `ExecutorType::Once` | `ExecutorType::ALWAYS` / `ExecutorType::ONCE` |
 
-### Publish Tags
+- ===1.x
 
-The package has its own publish tags now. The generic `config` and `migrations` tags still publish its files, but they also publish the files of every other package that uses them.
+  ```php title="executors/2024_07_22_100000_clear_cache.php"
+  use Pharaonic\Laravel\Executor\Enums\ExecutorType;
+  use Pharaonic\Laravel\Executor\Executor;
 
-| Deprecated | Use |
+  return new class extends Executor
+  {
+      public $type = ExecutorType::Once;
+
+      public $tag = 'cache';
+
+      public function handle(): void
+      {
+          $this->command('cache:clear');
+      }
+  };
+  ```
+
+- ===Now
+
+  ```php title="executors/2024_07_22_100000_clear_cache.php"
+  use Pharaonic\Laravel\Executor\Classes\Executor;
+  use Pharaonic\Laravel\Executor\Enums\ExecutorType;
+
+  return new class () extends Executor {
+      public $type = ExecutorType::ONCE;
+
+      public $tags = ['cache'];
+
+      public function up(): void
+      {
+          $this->command('cache:clear');
+      }
+
+      public function down(): void
+      {
+          //
+      }
+  };
+  ```
+
+Keep each file name: it is the executor's name, and the migrated records point at it.
+
+:::danger Old Executors Stop the Command
+`php artisan execute` reads every executor file. A file that still extends the 1.x class, uses `handle()`, or uses `ExecutorType::Once` stops the whole command with an error, so update all of them before you deploy.
+:::
+
+### 4. Update Code That Uses the Package
+
+| 1.x | Now |
 | --- | --- |
-| `--tag=config` | `--tag=executor-config` |
+| `Pharaonic\Laravel\Executor\Facades\ExecutorPool::addPath($path)` | `Pharaonic\Laravel\Executor\Facades\Executor::getPool()->addPath($path)` |
+| `ExecutorPool::getPaths()` | `Executor::getPool()->getPaths()` |
+| `php artisan execute:make` | `php artisan make:executor` (the old name still works and prints a deprecation notice) |
 | `--tag=migrations` | `--tag=executor-migrations` |
 
-### Exceptions
+`ExecutorType::ALWAYS->name` returns `ALWAYS`. Compare the case itself (`$type === ExecutorType::ONCE`), call `isOnce()`, or use `label()`, which returns `Always` or `Once`.
 
-An invalid executor declaration throws `InvalidArgumentException`, and two executors with the same file name throw `LogicException`. Both extend `Exception`, so existing `catch (Exception $e)` blocks still catch them.
+### What's New
+
+- [Rolling back](#rolling-back) batches with `down()`.
+- [Server targeting](#writing-executors) with `$servers`, and several tags per executor.
+- A [lock](#running-executors) so servers deploying at the same time don't run a `ONCE` executor twice.
+- A [configuration file](#configuration) for the connection, table and lock.

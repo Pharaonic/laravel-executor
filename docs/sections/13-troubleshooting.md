@@ -6,7 +6,15 @@ Every `ONCE` executor has already run and there's no `ALWAYS` executor. Check th
 
 ### "Undefined constant ExecutorType::Once"
 
-The executor uses a case name from before {release.label}. Rename `ExecutorType::Always` to `ExecutorType::ALWAYS` and `ExecutorType::Once` to `ExecutorType::ONCE`, as described in [Upgrading](#upgrading).
+The executor uses a 1.x case name. Rename `ExecutorType::Always` to `ExecutorType::ALWAYS` and `ExecutorType::Once` to `ExecutorType::ONCE`, as described in [Upgrading](#upgrading).
+
+### "Class Pharaonic\Laravel\Executor\Executor not found"
+
+The executor still extends the 1.x class. Use `Pharaonic\Laravel\Executor\Classes\Executor`, rename `handle()` to `up()`, and add a `down()` method, as described in [Upgrading](#upgrading).
+
+### "Column not found: name" after upgrading from 1.x
+
+The executors table still has the 1.x shape. Run `php artisan migrate`, which converts it.
 
 ### "Another server has been running the executors for more than 600 seconds."
 
