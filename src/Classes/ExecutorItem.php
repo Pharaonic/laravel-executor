@@ -2,40 +2,40 @@
 
 namespace Pharaonic\Laravel\Executor\Classes;
 
+use Pharaonic\Laravel\Executor\Enums\ExecutorType;
 use Pharaonic\Laravel\Executor\Facades\Executor as ExecutorFacade;
 use Pharaonic\Laravel\Executor\Models\Executor as Model;
 use Symfony\Component\Finder\SplFileInfo;
 
+/**
+ * @internal
+ *
+ * @phpstan-type ExecutorInfo array{name: string, path: string|false, type: ExecutorType, tags: array<array-key, mixed>|null, servers: array<array-key, mixed>|null, batch: int|null, executed: bool}
+ */
 class ExecutorItem
 {
     /**
      * The executor instance.
-     *
-     * @var Executor
      */
     public Executor $executor;
 
     /**
      * The associated executor model.
-     *
-     * @var Model|null
      */
     public ?Model $model = null;
 
     /**
      * The name of the executor.
-     *
-     * @var string
      */
     public string $name;
 
     /**
      * The file associated with the executor.
      *
-     * @param Executor $executor
-     * @param SplFileInfo $file
-     * @param string $name
-     * @param Model|null $model
+     * @param  Executor  $executor
+     * @param  SplFileInfo  $file
+     * @param  string  $name
+     * @param  Model|null  $model
      */
     public SplFileInfo $file;
 
@@ -50,7 +50,7 @@ class ExecutorItem
     /**
      * Get info about the executor.
      *
-     * @return array
+     * @return ExecutorInfo
      */
     public function info()
     {
@@ -72,23 +72,23 @@ class ExecutorItem
      */
     public function isExecutable()
     {
-        if (! $this->model) {
-            return true;
-        }
-
         if ($servers = $this->executor->servers ?: null) {
-            if (! array_intersect($servers, ExecutorFacade::getIPs())) {
+            if (! array_filter(ExecutorFacade::getIPs(), fn ($ip) => in_array($ip, $servers))) {
                 return false;
             }
         }
 
-        $this->model?->fill([
+        if (! $this->model) {
+            return true;
+        }
+
+        $this->model->fill([
             'type' => $this->executor->type,
             'tags' => $this->executor->tags ?: null,
             'servers' => $this->executor->servers ?: null,
         ]);
 
-        return $this->model?->isExecutable() ?? true;
+        return $this->model->isExecutable();
     }
 
     /**
@@ -101,18 +101,18 @@ class ExecutorItem
         $this->executor->up();
 
         if (! $this->model) {
-            $this->model = Model::create([
+            $this->model = new Model([
                 'type' => $this->executor->type,
                 'name' => $this->name,
                 'tags' => $this->executor->tags,
+                'servers' => $this->executor->servers ?: null,
                 'batch' => $nextBatch,
                 'executed' => 1,
                 'last_executed_at' => now(),
             ]);
-        } else {
-            $this->model->executed += 1;
-            $this->model->last_executed_at = now();
             $this->model->save();
+        } else {
+            $this->model->execute();
         }
     }
 

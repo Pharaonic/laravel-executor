@@ -3,7 +3,11 @@
 namespace Pharaonic\Laravel\Executor\Console;
 
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Cache\LockProvider;
+use Illuminate\Contracts\Cache\LockTimeoutException;
+use Illuminate\Support\Facades\Cache;
 use Pharaonic\Laravel\Executor\Facades\Executor as ExecutorFacade;
+use Throwable;
 
 class ExecuteCommand extends Command
 {
@@ -24,8 +28,53 @@ class ExecuteCommand extends Command
 
     /**
      * Execute the console command.
+     *
+     * @return int
      */
     public function handle()
+    {
+        $seconds = config('pharaonic.executor.lock.seconds', 600);
+        $seconds = is_numeric($seconds) ? (int) $seconds : 600;
+        $store = config('pharaonic.executor.lock.store');
+        $store = is_string($store) ? $store : null;
+        $cache = Cache::store($store)->getStore();
+
+        if (! $cache instanceof LockProvider) {
+            $this->runExecutors();
+
+            return 0;
+        }
+
+        $lock = $cache->lock('pharaonic:executor:execute', $seconds);
+
+        try {
+            $lock->block($seconds);
+        } catch (LockTimeoutException) {
+            $this->error("Another server has been running the executors for more than {$seconds} seconds.");
+
+            return 1;
+        } catch (Throwable $e) {
+            $name = $store ?? config('cache.default');
+            $name = is_string($name) ? $name : 'default';
+
+            $this->error("Couldn't take the executor lock on the [{$name}] cache store: {$e->getMessage()}");
+
+            return 1;
+        }
+
+        try {
+            $this->runExecutors();
+        } finally {
+            $lock->release();
+        }
+
+        return 0;
+    }
+
+    /**
+     * Run the executors that should run.
+     */
+    private function runExecutors(): void
     {
         $items = ExecutorFacade::getPool()
             ->collect(ExecutorFacade::getRecords())
@@ -33,6 +82,7 @@ class ExecuteCommand extends Command
 
         $name = $this->argument('name');
         $tags = $this->option('tags');
+        $tags = is_string($tags) && $tags !== '' ? explode(',', $tags) : [];
         $toRun = [];
 
         foreach ($items as $item) {
@@ -40,7 +90,7 @@ class ExecuteCommand extends Command
                 continue;
             }
 
-            if ($tags && ! array_intersect(explode(',', $tags), $item->executor->tags)) {
+            if ($tags && ! array_filter($tags, fn ($tag) => in_array($tag, $item->executor->tags))) {
                 continue;
             }
 
@@ -60,7 +110,5 @@ class ExecuteCommand extends Command
                 $item->run($batch);
             }
         }
-
-        return 0;
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
-use Pharaonic\Laravel\Executor\Enums\ExecutorType;
 use Pharaonic\Laravel\Executor\Classes\Executor;
+use Pharaonic\Laravel\Executor\Enums\ExecutorType;
 
 return new class () extends Executor {
     /**
@@ -9,7 +9,7 @@ return new class () extends Executor {
      *
      * @var ExecutorType
      */
-    public $type = ExecutorType::Always;
+    public $type = ExecutorType::ALWAYS;
 
     /**
      * The tags of the executor.

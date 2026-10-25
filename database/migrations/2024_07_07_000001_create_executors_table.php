@@ -17,7 +17,7 @@ class CreateExecutorsTable extends Migration
         Schema::connection(config('pharaonic.executor.connection', config('database.default')))
             ->create(config('pharaonic.executor.table', 'executors'), function (Blueprint $table) {
                 $table->id();
-                $table->unsignedTinyInteger('type')->default(ExecutorType::Always);
+                $table->unsignedTinyInteger('type')->default(ExecutorType::ALWAYS->value);
                 $table->string('name');
                 $table->json('tags')->nullable();
                 $table->json('servers')->nullable();

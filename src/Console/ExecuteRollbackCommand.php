@@ -30,7 +30,14 @@ class ExecuteRollbackCommand extends Command
      */
     public function handle()
     {
-        $batches = Executor::orderBy('batch', 'desc')->groupBy('batch')->limit($this->option('steps'))->pluck('batch')->toArray();
+        $steps = $this->option('steps');
+
+        $batches = Executor::query()
+            ->orderBy('batch', 'desc')
+            ->groupBy('batch')
+            ->limit(is_numeric($steps) ? (int) $steps : 1)
+            ->pluck('batch')
+            ->toArray();
 
         if (empty($batches)) {
             $this->warn('There are no executors has been found.');
@@ -50,7 +57,7 @@ class ExecuteRollbackCommand extends Command
             }
         }
 
-        Executor::whereIn('batch', $batches)->delete();
+        Executor::query()->whereIn('batch', $batches)->delete();
 
         $this->info('Executors has been rollback successfully.');
 

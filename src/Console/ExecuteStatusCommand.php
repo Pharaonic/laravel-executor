@@ -23,23 +23,33 @@ class ExecuteStatusCommand extends Command
 
     /**
      * Execute the console command.
+     *
+     * @return int
      */
     public function handle()
     {
         $this->table(
             ['Name', 'Type', 'Tags', 'Servers', 'Batch', 'Executed'],
-            collect(Executor::info())->map(function ($executor) {
+            array_map(function ($executor) {
                 return [
                     $executor['name'],
-                    $executor['type']->name,
-                    empty($executor['tags']) ? 'None' : implode(', ', $executor['tags']),
-                    empty($executor['servers']) ? 'All' : implode(', ', $executor['servers']),
+                    $executor['type']->label(),
+                    empty($executor['tags']) ? 'None' : $this->implode($executor['tags']),
+                    empty($executor['servers']) ? 'All' : $this->implode($executor['servers']),
                     $executor['batch'] ?? '<comment>N/A</comment>',
                     $executor['executed'] ? '<info>Yes</info>' : '<comment>No</comment>',
                 ];
-            })
+            }, array_values(Executor::info()))
         );
 
         return 0;
+    }
+
+    /**
+     * @param  array<array-key, mixed>  $values
+     */
+    private function implode(array $values): string
+    {
+        return implode(', ', array_map(fn ($value) => is_scalar($value) ? (string) $value : (json_encode($value) ?: ''), $values));
     }
 }

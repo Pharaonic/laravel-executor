@@ -1,13 +1,16 @@
 {
     "name": "pharaonic/laravel-executor",
-    "description": "Laravel Executor is a package that allows you to execute commands, actions, jobs, and automated tasks on your production server.",
+    "description": "Run one-time and recurring deployment tasks on your Laravel servers: Artisan commands, jobs and custom actions, tracked in batches with rollback, tags and per-server targeting.",
     "keywords": [
-        "laravel executor",
-        "laravel execute command on production server",
-        "laravel execute action on production server",
-        "laravel execute job on production server",
-        "laravel execute automated task on production server"
+        "laravel",
+        "executor",
+        "deployment",
+        "deploy tasks",
+        "artisan",
+        "rollback",
+        "pharaonic"
     ],
+    "type": "library",
     "license": "MIT",
     "authors": [
         {
@@ -23,16 +26,33 @@
             "email": "moemengaballa@gmail.com"
         }
     ],
+    "support": {
+        "docs": "https://pharaonic.dev/packages/laravel/executor",
+        "issues": "https://github.com/Pharaonic/laravel-executor/issues",
+        "source": "https://github.com/Pharaonic/laravel-executor"
+    },
     "require": {
-        "php": "~8.2|~8.3|~8.4|~8.5",
-        "laravel/framework": "^12.0",
-        "pharaonic/php-dot-array": "^2.0|~8.4|~8.5"
+        "php": ">=8.2 <8.5",
+        "laravel/framework": "^11.0",
+        "pharaonic/php-dot-array": "~8.2.1 || ~8.3.1 || ~8.4.2",
+        "pharaonic/php-smart-enum": "~8.2.0 || ~8.3.0 || ~8.4.0"
     },
     "require-dev": {
-        "orchestra/testbench": "^10.6"
+        "laravel/pint": "^1.20",
+        "orchestra/testbench": "^9.0",
+        "pestphp/pest": "^3.8",
+        "phpstan/phpstan": "^2.1",
+        "phpunit/phpunit": "^11.5.50"
     },
-    "config": {
-        "sort-packages": true
+    "autoload": {
+        "psr-4": {
+            "Pharaonic\\Laravel\\Executor\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Pharaonic\\Laravel\\Executor\\Tests\\": "tests/"
+        }
     },
     "extra": {
         "laravel": {
@@ -41,16 +61,36 @@
             ]
         }
     },
-    "autoload": {
-        "psr-4": {
-            "Pharaonic\\Laravel\\Executor\\": "src"
-        }
+    "scripts": {
+        "test": "@php vendor/bin/pest",
+        "analyse": "@php vendor/bin/phpstan analyse --memory-limit=1G",
+        "format": "@php vendor/bin/pint",
+        "format:check": "@php vendor/bin/pint --test",
+        "security": "@composer audit",
+        "check": [
+            "@composer validate --strict",
+            "@format:check",
+            "@analyse",
+            "@test",
+            "@security"
+        ]
     },
-    "autoload-dev": {
-        "psr-4": {
-            "Pharaonic\\Laravel\\Executor\\Tests\\": "tests"
-        }
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        },
+        "audit": {
+            "abandoned": "report"
+        },
+        "policy": {
+            "advisories": {
+                "block": false,
+                "ignore": {
+                    "laravel/framework": "No fixed release within Laravel 11; the application chooses the framework release."
+                }
+            }
+        },
+        "sort-packages": true
     },
-    "minimum-stability": "dev",
     "prefer-stable": true
 }
