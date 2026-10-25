@@ -76,7 +76,7 @@
 | `servers` | `?array` | The executor's server IP addresses |
 | `batch` | `?int` | The batch of the first run |
 | `executed` | `int` | How many times it has run |
-| `last_executed_at` | `?Carbon` | When it last ran |
+| `last_executed_at` | `?CarbonInterface` | When it last ran |
 
 | Method | Description | Returns |
 | --- | --- | --- |

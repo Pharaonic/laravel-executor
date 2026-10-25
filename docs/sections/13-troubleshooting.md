@@ -6,7 +6,7 @@ Every `ONCE` executor has already run and there's no `ALWAYS` executor. Check th
 
 ### "Undefined constant ExecutorType::Once"
 
-The executor uses a case name from 1.x or 11.0.x. Rename `ExecutorType::Always` to `ExecutorType::ALWAYS` and `ExecutorType::Once` to `ExecutorType::ONCE`, as described in [Upgrading](#upgrading).
+The executor uses a case name from 1.x or 12.0.x. Rename `ExecutorType::Always` to `ExecutorType::ALWAYS` and `ExecutorType::Once` to `ExecutorType::ONCE`, as described in [Upgrading](#upgrading).
 
 ### "Class Pharaonic\Laravel\Executor\Executor not found"
 
