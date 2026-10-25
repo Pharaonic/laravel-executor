@@ -2,9 +2,9 @@
 
 All notable changes to this project are documented here.
 
-## 10.0.0 - Unreleased
+## 10.0.0 - 2026-10-25
 
-First release of the Laravel 10 line. The package code is the same on every line from 10.x to 13.x.
+First release of the Laravel 10 line. Every Laravel line from 10.x up carries the same package code.
 
 ### Added
 
