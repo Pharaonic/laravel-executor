@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented here.
 
+## 10.0.1 - Unreleased
+
+### Fixed
+
+- Upgrading from 1.x works: a new migration converts the 1.x executors table (`executor` and `tag` columns) to the current shape (`name`, `tags` and `servers`) and keeps every record, so executors that already ran don't run again. Run `php artisan migrate` after updating. Tables created by later releases are left untouched.
+- The upgrade guide covers upgrading from 1.x: the table migration, the new base class, `handle()` becoming `up()` and `down()`, `$tag` becoming `$tags`, and the `ExecutorPool` facade.
+
 ## 10.0.0 - 2026-10-25
 
 First release of the Laravel 10 line. Every Laravel line from 10.x up carries the same package code.

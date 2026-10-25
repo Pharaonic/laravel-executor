@@ -60,9 +60,9 @@ php artisan execute
 
 Full documentation: https://pharaonic.dev/packages/laravel/executor
 
-## Upgrading
+## Upgrading from 1.x
 
-`ExecutorType::Always` and `ExecutorType::Once` are now `ExecutorType::ALWAYS` and `ExecutorType::ONCE`, and the old names are removed. See [Upgrading](https://pharaonic.dev/packages/laravel/executor) in the documentation.
+Run `php artisan migrate` to convert the executors table, then update every executor file: the base class is now `Pharaonic\Laravel\Executor\Classes\Executor`, `handle()` becomes `up()` and `down()`, `$tag` becomes `$tags`, and `ExecutorType::Always` and `ExecutorType::Once` are now `ExecutorType::ALWAYS` and `ExecutorType::ONCE`. The [upgrade guide](https://pharaonic.dev/packages/laravel/executor/10.x#upgrading) has every step.
 
 ## Support & Security
 
