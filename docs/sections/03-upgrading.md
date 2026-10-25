@@ -1,16 +1,22 @@
 ## Upgrading
 
-Pick the part for the release you're on: 12.0.x needs a few renames, while 1.x needs a table migration and changes to every executor file.
+Pick the part for the release you're on. From 12.1 there's nothing to change in your code; 12.0.x needs a few renames, while 1.x needs a table migration and changes to every executor file.
 
-### From 12.0.x
+### From 12.x
 
-12.1.0 keeps the table and the executor classes of 12.0.x; `php artisan migrate` has nothing to convert. Update the case names and check the behavior changes below.
+Upgrade Laravel to 13 and require this line:
+
+```bash title="Terminal" no-line-numbers
+composer require pharaonic/laravel-executor:^13.0
+```
+
+From 12.1 or later, that's all: 13.0.0 has the same API and behavior. From 12.0.x, the table and the executor classes stay the same and `php artisan migrate` has nothing to convert, but update the case names and check the behavior changes below.
 
 #### Executor Types Are Upper Case
 
 The `ExecutorType` cases are renamed, and the old names are removed. Executors that still use them stop with an `Undefined constant` error, so update every executor file:
 
-| 12.0.x | 12.1.0 |
+| 12.0.x | 13.0.0 |
 | --- | --- |
 | `ExecutorType::Always` | `ExecutorType::ALWAYS` |
 | `ExecutorType::Once` | `ExecutorType::ONCE` |
@@ -35,14 +41,14 @@ The deprecated names still work.
 
 ### From 1.x
 
-On Laravel 12, this line replaces 1.x. Executors become classes with `up()` and `down()`, and the executors table gets new columns. Plan the upgrade as a deploy of its own: update the package, migrate the table, then update every executor file.
+On Laravel 13, this line replaces 1.x. Executors become classes with `up()` and `down()`, and the executors table gets new columns. Plan the upgrade as a deploy of its own: update the package, migrate the table, then update every executor file.
 
 #### 1. Update the Package
 
 Composer doesn't move from 1.x to this line on its own, so require it explicitly:
 
 ```bash title="Terminal" no-line-numbers
-composer require pharaonic/laravel-executor:^12.1
+composer require pharaonic/laravel-executor:^13.0
 ```
 
 #### 2. Migrate the Table
