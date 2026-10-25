@@ -2,6 +2,30 @@
 
 All notable changes to this project are documented here.
 
+## 12.1.0 - Unreleased
+
+First release of the new Laravel 12 line, built from 11.1.0.
+
+### Compatibility
+
+- Laravel 12 on PHP 8.2, 8.3, 8.4 or 8.5.
+- Requires `pharaonic/php-dot-array` `~8.2.1`, `~8.3.1`, `~8.4.2` or `~8.5.2`, and `pharaonic/php-smart-enum` `~8.2.0`, `~8.3.0`, `~8.4.0` or `~8.5.1`, matching your PHP version.
+- The same API and behavior as 11.1.0.
+
+### Behavior Changes from 12.0.x
+
+This release brings every 10.x and 11.x change up to 11.1.0 to the Laravel 12 line. Coming from 12.0.x, check these before you upgrade:
+
+- `ExecutorType::Always` and `ExecutorType::Once` are removed. Rename them to `ExecutorType::ALWAYS` and `ExecutorType::ONCE` in every executor file; until then, `php artisan execute` fails with `Undefined constant`. `ExecutorType::ALWAYS->name` is `ALWAYS`.
+- An executor with `$servers` no longer runs on other servers, including on its first run.
+- `php artisan execute` takes a cache lock. Servers that deploy at the same time need a shared cache store for it, set with `EXECUTOR_LOCK_STORE`. When that store fails, the command stops before running any executor.
+- Invalid executor declarations throw `InvalidArgumentException`, and duplicate executor names throw `LogicException`, instead of `Exception`.
+- `make:executor` creates executors; `execute:make` and `make:execute` still work and print a deprecation notice.
+
+Upgrading from 1.x instead? Run `php artisan migrate`, which converts the 1.x executors table, and follow the upgrade guide.
+
+The sections below list every change.
+
 ## 11.1.0 - 2026-10-25
 
 First release of the new Laravel 11 line, built from 10.0.2.
