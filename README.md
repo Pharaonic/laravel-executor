@@ -1,24 +1,73 @@
-<p align="center"><a href="https://pharaonic.io" target="_blank"><img src="https://raw.githubusercontent.com/Pharaonic/logos/main/executor.jpg"></a></p>
+<p align="center"><a href="https://pharaonic.dev/packages/laravel/executor" target="_blank"><img src="https://raw.githubusercontent.com/Pharaonic/laravel-executor/develop/docs/cover.webp"></a></p>
 
 <p align="center">
-<a href="https://github.com/Pharaonic/laravel-executor/actions"><img src="https://github.com/Pharaonic/laravel-executor/workflows/Tests/badge.svg" alt="Tests Status"></a>
-<a href="https://laravel.com" target="_blank"><img src="https://img.shields.io/static/v1?label=Laravel&message=12.x&color=F05340&style=flat-square" alt="Laravel Version : 12.x"></a>
-  <a href="https://packagist.org/packages/pharaonic/laravel-executor" target="_blank"><img src="https://poser.pugx.org/pharaonic/laravel-executor/downloads" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/Pharaonic/laravel-executor"><img src="https://img.shields.io/packagist/v/Pharaonic/laravel-executor" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/Pharaonic/laravel-executor"><img src="https://img.shields.io/static/v1?label=License&message=MIT&color=brightgreen&style=flat-square" alt="License"></a>
+  <a href="https://php.net" target="_blank"><img src="https://img.shields.io/static/v1?label=PHP&message=8.1%20|%208.2%20|%208.3&color=blue&style=flat-square" alt="PHP Version : 8.1 | 8.2 | 8.3"></a>
+  <a href="https://laravel.com" target="_blank"><img src="https://img.shields.io/static/v1?label=Laravel&message=10.x&color=F05340&style=flat-square" alt="Laravel Version : 10.x"></a>
+  <img src="https://img.shields.io/static/v1?label=License&message=MIT&color=brightgreen&style=flat-square" alt="License">
+  <img src="https://github.com/Pharaonic/laravel-executor/actions/workflows/build.yml/badge.svg?branch=10.x" alt="Build">
+  <br>
+  <a href="https://packagist.org/packages/pharaonic/laravel-executor" target="_blank"><img src="https://poser.pugx.org/pharaonic/laravel-executor/v" alt="Packagist Version"></a>
+  <a href="https://packagist.org/packages/pharaonic/laravel-executor" target="_blank"><img src="https://poser.pugx.org/pharaonic/laravel-executor/downloads" alt="Packagist Downloads"></a>
 </p>
 
-<h3 align="center">Allows you to execute commands, actions, jobs, and automated tasks on your production server.</h3>
-<br>
+# Laravel Executor
+
+Run one-time and recurring deployment tasks on your Laravel servers: Artisan commands, jobs and custom actions, tracked in batches with rollback, tags and per-server targeting.
+
+## Installation
+
+```bash
+composer require pharaonic/laravel-executor
+php artisan migrate
+```
+
+The service provider is registered automatically. Publish the configuration when you need to change it:
+
+```bash
+php artisan vendor:publish --tag=executor-config
+```
+
+## Usage
+
+```bash
+php artisan make:executor ClearCache
+```
+
+```php
+use Pharaonic\Laravel\Executor\Classes\Executor;
+use Pharaonic\Laravel\Executor\Enums\ExecutorType;
+
+return new class () extends Executor {
+    public $type = ExecutorType::ONCE;
+
+    public function up(): void
+    {
+        $this->command('cache:clear');
+    }
+
+    public function down(): void
+    {
+        //
+    }
+};
+```
+
+```bash
+php artisan execute
+```
 
 ## Documentation
 
-You can find the detailed documentation here in [Laravel Executor Documentation](https://pharaonic.io/packages/laravel/executor/12.x).
+Full documentation: https://pharaonic.dev/packages/laravel/executor
 
-## Contributing
+## Upgrading
 
-Thank you for considering contributing to this package! Be one of Pharaonic team.
+`ExecutorType::Always` and `ExecutorType::Once` are now `ExecutorType::ALWAYS` and `ExecutorType::ONCE`, and the old names are removed. See [Upgrading](https://pharaonic.dev/packages/laravel/executor) in the documentation.
+
+## Support & Security
+
+See [SUPPORT.md](SUPPORT.md) and [SECURITY.md](SECURITY.md).
 
 ## License
 
-This package is an open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+MIT. See [LICENSE](LICENSE).
