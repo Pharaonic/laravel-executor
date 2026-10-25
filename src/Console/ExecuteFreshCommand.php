@@ -28,7 +28,7 @@ class ExecuteFreshCommand extends Command
      */
     public function handle()
     {
-        Executor::truncate();
+        Executor::query()->truncate();
 
         $this->call('execute');
 

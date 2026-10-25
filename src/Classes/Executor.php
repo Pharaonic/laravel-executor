@@ -6,19 +6,11 @@ use Illuminate\Console\Concerns\InteractsWithIO;
 use Illuminate\Console\OutputStyle;
 use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Support\Facades\Artisan;
+use InvalidArgumentException;
 use Pharaonic\Laravel\Executor\Enums\ExecutorType;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
-/**
- * @property ExecutorType $type
- * @property array $tags
- * @property array $servers
- * @method void up()
- * @method void down()
- * @method PendingDispatch job(string|object $job, ...$arguments)
- * @method int command(string $command, array $parameters = [])
- */
 abstract class Executor
 {
     use InteractsWithIO;
@@ -33,28 +25,24 @@ abstract class Executor
     /**
      * The tags of the executor.
      *
-     * @var array
+     * @var array<array-key, mixed>
      */
     public $tags = [];
 
     /**
      * The servers of the executor.
      *
-     * @var array
+     * @var array<array-key, mixed>
      */
     public $servers = [];
 
     /**
      * Run the executor.
-     *
-     * @return void
      */
     abstract public function up(): void;
 
     /**
      * Reverse the executor.
-     *
-     * @return void
      */
     abstract public function down(): void;
 
@@ -65,32 +53,22 @@ abstract class Executor
      */
     public function __construct()
     {
-        if (! ($this->type instanceof ExecutorType)) {
-            throw new \Exception('The type of the executor must be an instance of ExecutorType.');
-        }
+        self::validateType($this->type);
+        self::validateList($this->tags, 'The tags of the executor must be an array.');
+        self::validateList($this->servers, 'The servers of the executor must be an array of ips.');
 
-        if (! is_array($this->tags)) {
-            throw new \Exception('The tags of the executor must be an array.');
-        }
-
-        if (! is_array($this->servers)) {
-            throw new \Exception('The servers of the executor must be an array of ips.');
-        }
-
-        $this->output = new OutputStyle(new ArgvInput(), new ConsoleOutput());
+        $this->output = new OutputStyle(new ArgvInput, new ConsoleOutput);
     }
 
     /**
      * Dispatch a job to its appropriate handler.
      *
-     * @param  string|object  $job
-     * @param  mixed  ...$arguments
-     * @return PendingDispatch
+     * @throws InvalidArgumentException
      */
-    final protected function job(string|object $job, ...$arguments): PendingDispatch
+    final protected function job(string|object $job, mixed ...$arguments): PendingDispatch
     {
         if (is_callable($job)) {
-            throw new \Exception('The job must be a string or an object.');
+            throw new InvalidArgumentException('The job must be a string or an object.');
         }
 
         return dispatch(is_string($job) ? new $job(...$arguments) : $job);
@@ -99,12 +77,32 @@ abstract class Executor
     /**
      * Execute the command.
      *
-     * @param string $command
-     * @param array $parameters
-     * @return int
+     * @param  array<string, mixed>  $parameters
      */
     final protected function command(string $command, array $parameters = []): int
     {
         return Artisan::call($command, $parameters, $this->output);
+    }
+
+    /**
+     * Executors declare their properties freely, so check them at runtime.
+     *
+     * @throws InvalidArgumentException
+     */
+    private static function validateType(mixed $type): void
+    {
+        if (! $type instanceof ExecutorType) {
+            throw new InvalidArgumentException('The type of the executor must be an instance of ExecutorType.');
+        }
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    private static function validateList(mixed $items, string $message): void
+    {
+        if (! is_array($items)) {
+            throw new InvalidArgumentException($message);
+        }
     }
 }

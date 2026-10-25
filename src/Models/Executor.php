@@ -9,13 +9,10 @@ use Pharaonic\Laravel\Executor\Enums\ExecutorType;
  * @property int $id
  * @property ExecutorType $type
  * @property string $name
- * @property array|null $tags
+ * @property array<array-key, mixed>|null $tags
  * @property int|null $batch
  * @property int $executed
- * @property \Illuminate\Support\Carbon $last_executed_at
- * @method bool isNew()
- * @method bool isExecutable()
- * @method void execute()
+ * @property \Illuminate\Support\Carbon|null $last_executed_at
  */
 class Executor extends Model
 {
@@ -29,7 +26,7 @@ class Executor extends Model
     /**
      * The attributes that are mass assignable.
      *
-     * @var array
+     * @var array<int, string>
      */
     protected $fillable = [
         'type',
@@ -43,7 +40,7 @@ class Executor extends Model
     /**
      * The attributes that should be cast.
      *
-     * @var array
+     * @var array<string, string>
      */
     protected $casts = [
         'type' => ExecutorType::class,
@@ -60,7 +57,9 @@ class Executor extends Model
      */
     public function getConnectionName()
     {
-        return config('pharaonic.executor.connection', parent::getConnectionName());
+        $connection = config('pharaonic.executor.connection', parent::getConnectionName());
+
+        return is_string($connection) ? $connection : null;
     }
 
     /**
@@ -70,7 +69,9 @@ class Executor extends Model
      */
     public function getTable()
     {
-        return config('pharaonic.executor.table', parent::getTable());
+        $table = config('pharaonic.executor.table', parent::getTable());
+
+        return is_string($table) ? $table : parent::getTable();
     }
 
     /**

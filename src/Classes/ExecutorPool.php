@@ -2,22 +2,27 @@
 
 namespace Pharaonic\Laravel\Executor\Classes;
 
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
+use LogicException;
+use Pharaonic\Laravel\Executor\Models\Executor as Model;
 
+/**
+ * @phpstan-import-type ExecutorInfo from ExecutorItem
+ */
 class ExecutorPool
 {
     /**
      * These paths for all pools of executors.
      *
-     * @var array
+     * @var array<int, string>
      */
     protected array $paths = [];
 
     /**
      * All executors items.
      *
-     * @var array
+     * @var array<string, ExecutorItem>
      */
     protected array $items = [];
 
@@ -29,7 +34,6 @@ class ExecutorPool
     /**
      * Add a new path to executors pools.
      *
-     * @param string $path
      * @return static
      */
     public function addPath(string $path)
@@ -42,7 +46,7 @@ class ExecutorPool
     /**
      * Return all pools of executors.
      *
-     * @return array
+     * @return array<int, string>
      */
     public function getPaths(): array
     {
@@ -52,19 +56,17 @@ class ExecutorPool
     /**
      * Get info about all executors.
      *
-     * @return array
+     * @return array<string, ExecutorInfo>
      */
     public function info()
     {
-        return collect($this->items)->map(function ($item) {
-            return $item->info();
-        })->toArray();
+        return array_map(fn (ExecutorItem $item) => $item->info(), $this->items);
     }
 
     /**
      * Collect all executors from the defined paths.
      *
-     * @param Collection $records
+     * @param  Collection<array-key, Model>  $records  The executor records keyed by name.
      * @return static
      */
     public function collect(Collection $records)
@@ -85,9 +87,10 @@ class ExecutorPool
 
                         $name = basename($file->getFileName(), '.php');
                         $record = $records->get($name);
+                        $record = $record instanceof Model ? $record : null;
 
                         if (isset($this->items[$name])) {
-                            throw new \Exception("Duplicate Executor name [$name] in file: " . $file->getRealPath());
+                            throw new LogicException("Duplicate Executor name [$name] in file: ".$file->getRealPath());
                         }
 
                         $this->items[$name] = new ExecutorItem($obj, $file, $name, $record);
@@ -102,7 +105,7 @@ class ExecutorPool
     /**
      * Get all collected executors items.
      *
-     * @return array
+     * @return array<string, ExecutorItem>
      */
     public function getItems()
     {

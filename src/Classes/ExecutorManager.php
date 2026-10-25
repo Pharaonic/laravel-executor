@@ -2,27 +2,29 @@
 
 namespace Pharaonic\Laravel\Executor\Classes;
 
+use Illuminate\Support\Collection;
 use Pharaonic\Laravel\Executor\Models\Executor;
 
+/**
+ * @phpstan-import-type ExecutorInfo from ExecutorItem
+ */
 class ExecutorManager
 {
     /**
      * The executor pool instance.
-     *
-     * @var ExecutorPool
      */
     protected ExecutorPool $pool;
 
     /**
      * The server IPs.
      *
-     * @var array
+     * @var array<int, string>
      */
     protected array $ips = [];
 
     public function __construct()
     {
-        $this->pool = new ExecutorPool();
+        $this->pool = new ExecutorPool;
     }
 
     /**
@@ -36,9 +38,9 @@ class ExecutorManager
     }
 
     /**
-     * Get all executor records.
+     * Get all executor records, keyed by name.
      *
-     * @return \Illuminate\Support\Collection
+     * @return Collection<array-key, Executor>
      */
     public function getRecords()
     {
@@ -48,7 +50,7 @@ class ExecutorManager
     /**
      * Get info about all executors.
      *
-     * @return array
+     * @return array<string, ExecutorInfo>
      */
     public function info()
     {
@@ -58,19 +60,21 @@ class ExecutorManager
     }
 
     /**
-    * Get the next batch number.
-    *
-    * @return int
-    */
+     * Get the next batch number.
+     *
+     * @return int
+     */
     public function getNextBatchNumber()
     {
-        return (Executor::orderBy('batch', 'desc')->first()?->batch ?? 0) + 1;
+        $batch = Executor::query()->max('batch');
+
+        return (is_numeric($batch) ? (int) $batch : 0) + 1;
     }
 
     /**
      * Get the server IPs.
      *
-     * @return array
+     * @return array<int, string>
      */
     public function getIPs()
     {
@@ -78,9 +82,11 @@ class ExecutorManager
             return $this->ips;
         }
 
-        return $this->ips = array_filter(
-            dot(net_get_interfaces())->get('*.unicast.*.address'),
-            fn ($ip) => ! in_array($ip, ['127.0.0.1', '::1', null])
-        );
+        $addresses = dot(net_get_interfaces() ?: [])->get('*.unicast.*.address');
+
+        return $this->ips = array_values(array_filter(
+            is_array($addresses) ? $addresses : [],
+            fn ($ip) => is_string($ip) && ! in_array($ip, ['127.0.0.1', '::1'], true)
+        ));
     }
 }

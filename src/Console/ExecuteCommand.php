@@ -24,6 +24,8 @@ class ExecuteCommand extends Command
 
     /**
      * Execute the console command.
+     *
+     * @return int
      */
     public function handle()
     {
@@ -33,6 +35,7 @@ class ExecuteCommand extends Command
 
         $name = $this->argument('name');
         $tags = $this->option('tags');
+        $tags = is_string($tags) && $tags !== '' ? explode(',', $tags) : [];
         $toRun = [];
 
         foreach ($items as $item) {
@@ -40,7 +43,7 @@ class ExecuteCommand extends Command
                 continue;
             }
 
-            if ($tags && ! array_intersect(explode(',', $tags), $item->executor->tags)) {
+            if ($tags && ! array_filter($tags, fn ($tag) => in_array($tag, $item->executor->tags))) {
                 continue;
             }
 
