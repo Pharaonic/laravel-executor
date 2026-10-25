@@ -3,6 +3,9 @@
 namespace Pharaonic\Laravel\Executor\Console;
 
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Cache\LockProvider;
+use Illuminate\Contracts\Cache\LockTimeoutException;
+use Illuminate\Support\Facades\Cache;
 use Pharaonic\Laravel\Executor\Facades\Executor as ExecutorFacade;
 
 class ExecuteCommand extends Command
@@ -28,6 +31,33 @@ class ExecuteCommand extends Command
      * @return int
      */
     public function handle()
+    {
+        $seconds = config('pharaonic.executor.lock.seconds', 600);
+        $seconds = is_numeric($seconds) ? (int) $seconds : 600;
+        $store = config('pharaonic.executor.lock.store');
+        $cache = Cache::store(is_string($store) ? $store : null)->getStore();
+
+        if (! $cache instanceof LockProvider) {
+            $this->runExecutors();
+
+            return 0;
+        }
+
+        try {
+            $cache->lock('pharaonic:executor:execute', $seconds)->block($seconds, fn () => $this->runExecutors());
+        } catch (LockTimeoutException) {
+            $this->error("Another server has been running the executors for more than {$seconds} seconds.");
+
+            return 1;
+        }
+
+        return 0;
+    }
+
+    /**
+     * Run the executors that should run.
+     */
+    private function runExecutors(): void
     {
         $items = ExecutorFacade::getPool()
             ->collect(ExecutorFacade::getRecords())
@@ -63,7 +93,5 @@ class ExecuteCommand extends Command
                 $item->run($batch);
             }
         }
-
-        return 0;
     }
 }
