@@ -72,14 +72,14 @@ class ExecutorItem
      */
     public function isExecutable()
     {
-        if (! $this->model) {
-            return true;
-        }
-
         if ($servers = $this->executor->servers ?: null) {
             if (! array_filter(ExecutorFacade::getIPs(), fn ($ip) => in_array($ip, $servers))) {
                 return false;
             }
+        }
+
+        if (! $this->model) {
+            return true;
         }
 
         $this->model->fill([
@@ -105,6 +105,7 @@ class ExecutorItem
                 'type' => $this->executor->type,
                 'name' => $this->name,
                 'tags' => $this->executor->tags,
+                'servers' => $this->executor->servers ?: null,
                 'batch' => $nextBatch,
                 'executed' => 1,
                 'last_executed_at' => now(),

@@ -10,6 +10,7 @@ use Pharaonic\Laravel\Executor\Enums\ExecutorType;
  * @property ExecutorType $type
  * @property string $name
  * @property array<array-key, mixed>|null $tags
+ * @property array<array-key, mixed>|null $servers
  * @property int|null $batch
  * @property int $executed
  * @property \Illuminate\Support\Carbon|null $last_executed_at
@@ -32,6 +33,7 @@ class Executor extends Model
         'type',
         'name',
         'tags',
+        'servers',
         'batch',
         'executed',
         'last_executed_at',
@@ -45,6 +47,7 @@ class Executor extends Model
     protected $casts = [
         'type' => ExecutorType::class,
         'tags' => 'array',
+        'servers' => 'array',
         'batch' => 'integer',
         'executed' => 'integer',
         'last_executed_at' => 'datetime',
