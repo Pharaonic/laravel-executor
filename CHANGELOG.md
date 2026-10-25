@@ -4,17 +4,21 @@ All notable changes to this project are documented here.
 
 ## 11.1.0 - Unreleased
 
-First release of the new Laravel 11 line, built from 10.0.1.
+First release of the new Laravel 11 line, built from 10.0.2.
 
 ### Compatibility
 
 - Laravel 11 on PHP 8.2, 8.3 or 8.4. PHP 8.1 is no longer supported on this line.
 - Requires `pharaonic/php-dot-array` `~8.2.1`, `~8.3.1` or `~8.4.2`, and `pharaonic/php-smart-enum` `~8.2.0`, `~8.3.0` or `~8.4.0`, matching your PHP version.
-- The same API and behavior as 10.0.1.
+- The same API and behavior as 10.0.2.
+
+### Fixed
+
+- When the cache store of the lock fails, for example a `database` store without its tables, `php artisan execute` stops before running any executor with `Couldn't take the executor lock on the [store] cache store: …` and exit code `1`, instead of a raw store error (10.0.2).
 
 ### Behavior Changes from 11.0.x
 
-This release brings every 10.0.0 and 10.0.1 change to the Laravel 11 line. Coming from 11.0.0, check these before you upgrade:
+This release brings every 10.x change up to 10.0.2 to the Laravel 11 line. Coming from 11.0.0, check these before you upgrade:
 
 - `ExecutorType::Always` and `ExecutorType::Once` are removed. Rename them to `ExecutorType::ALWAYS` and `ExecutorType::ONCE` in every executor file; until then, `php artisan execute` fails with `Undefined constant`. `ExecutorType::ALWAYS->name` is `ALWAYS`.
 - An executor with `$servers` no longer runs on other servers, including on its first run.

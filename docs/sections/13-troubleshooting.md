@@ -22,7 +22,7 @@ Another `php artisan execute` holds the lock: a deploy is still running, or a ru
 
 ### "Couldn't take the executor lock on the [database] cache store"
 
-`php artisan execute` couldn't reach the cache store of its lock, so it stopped before running anything. The message ends with the store's own error. With the `database` store, create the cache tables (`php artisan cache:table` on Laravel 10, then `php artisan migrate`), or point `EXECUTOR_LOCK_STORE` at another store every server shares, such as `redis`.
+`php artisan execute` couldn't reach the cache store of its lock, so it stopped before running anything. The message ends with the store's own error. With the `database` store, create the cache tables (`php artisan make:cache-table`, then `php artisan migrate`), or point `EXECUTOR_LOCK_STORE` at another store every server shares, such as `redis`.
 
 ### A `ONCE` executor ran on two servers
 
