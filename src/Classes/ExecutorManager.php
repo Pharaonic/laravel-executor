@@ -52,7 +52,7 @@ class ExecutorManager
         $records = [];
 
         foreach ($query->get() as $record) {
-            if ($record instanceof Executor && ($record->server === null || $this->isServer($record->server))) {
+            if ($record->server === null || $this->isServer($record->server)) {
                 $records[] = $record;
             }
         }
