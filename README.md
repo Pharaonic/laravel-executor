@@ -15,14 +15,113 @@
 <h5 align="center">Artisan commands, queued jobs and data fixes, tracked in batches with rollback.</h5>
 <br>
 
+## Installation
+
+```bash
+composer require pharaonic/laravel-executor
+php artisan migrate
+```
+
+The service provider is registered automatically, and the package loads its migration, so `php artisan migrate` creates the `executors` table.
+
+## Usage
+
+An executor is a deployment task, such as clearing caches, dispatching a job, or fixing data. Each one lives in its own file, runs once or on every deploy, and is tracked in a batch that can be rolled back.
+
+### Create an Executor
+
+```bash
+php artisan make:executor WarmCaches
+```
+
+The command creates a timestamped file in the `executors` folder, such as `executors/2026_01_15_120000_warm_caches.php`:
+
+```php
+use App\Jobs\RecalculateRatings;
+use Pharaonic\Laravel\Executor\Classes\Executor;
+use Pharaonic\Laravel\Executor\Enums\ExecutorType;
+
+return new class () extends Executor {
+    public $type = ExecutorType::ONCE;
+
+    public $tags = ['cache'];
+
+    public $servers = [];
+
+    public function up(): void
+    {
+        $this->command('optimize');
+        $this->job(RecalculateRatings::class, 'electronics')->onQueue('ratings');
+    }
+
+    public function down(): void
+    {
+        $this->command('optimize:clear');
+    }
+};
+```
+
+| Type | Runs |
+| --- | --- |
+| `ExecutorType::ONCE` | The first time `php artisan execute` sees it, then never again |
+| `ExecutorType::ALWAYS` | Every time `php artisan execute` runs (the default) |
+
+`$this->command()` calls an Artisan command and `$this->job()` dispatches a job. `down()` runs when the executor's batch is rolled back.
+
+### Run the Executors
+
+Add it to your deploy script:
+
+```bash
+php artisan execute
+```
+
+Executors run in file-name order, and every executor that runs for the first time in the same call shares one batch. Run one executor by name, or only the executors with one of the given tags:
+
+```bash
+php artisan execute 2026_01_15_120000_warm_caches
+php artisan execute --tags=cache,search
+```
+
+### Several Servers
+
+`$servers` limits an executor to some servers, by name or by IP address. Name each server with `EXECUTOR_SERVER`, which keeps working when its address changes, such as in Docker:
+
+```bash
+EXECUTOR_SERVER=web-1
+```
+
+```php
+public $servers = ['web-1', 'web-2'];
+```
+
+An executor with `$servers` keeps one record per server, so a `ONCE` executor runs once on each listed server. Leave `$servers` empty for work one server does for all of them.
+
+When servers deploy at the same time, `php artisan execute` takes a lock in the executors table, so they run the executors one after another and a `ONCE` executor never runs twice.
+
+### Roll Back and Check
+
+```bash
+php artisan execute:rollback            # roll back the last batch
+php artisan execute:rollback --steps=2  # roll back the last two batches
+php artisan execute:status              # list every executor and whether it ran
+php artisan execute:fresh               # empty the table and run everything again
+```
+
+`execute:fresh` runs every `ONCE` executor again, so keep it to local and testing environments.
+
 ## Documentation
 
-You can find the detailed documentation here in [Laravel Executor Documentation](https://pharaonic.dev/packages/laravel/executor).
+For configuration, executor paths, the API reference, examples, troubleshooting, and upgrading from 1.x, see the [Laravel Executor Documentation](https://pharaonic.dev/packages/laravel/executor).
 
 ## Contributing
 
-Thank you for considering contributing to this package! Be one of Pharaonic team.
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Support & Security
+
+See [SUPPORT.md](SUPPORT.md) and [SECURITY.md](SECURITY.md).
 
 ## License
 
-This package is an open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+MIT. See [LICENSE](LICENSE).
