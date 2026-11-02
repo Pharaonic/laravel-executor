@@ -42,7 +42,7 @@ Two folders contain a file with the same name. Rename one of them, keeping its t
 
 ### An executor runs on the wrong server
 
-`$servers` is compared with the addresses of the server's network interfaces. Behind NAT or a load balancer, use the server's private address. Check what the package sees with `php artisan tinker` and `Executor::getIPs()`.
+`$servers` is compared with the server's `EXECUTOR_SERVER` name and the addresses of its network interfaces. Behind NAT or a load balancer, use the server's private address; inside Docker or another container, the package sees the container's address, so set `EXECUTOR_SERVER` and list names instead. Check what the package sees with `php artisan tinker`, `Executor::getServer()` and `Executor::getIPs()`.
 
 ### `execute:make` prints a deprecation notice
 

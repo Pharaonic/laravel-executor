@@ -91,16 +91,15 @@ class ExecutorItem
 
     /**
      * Get the server this executor keeps its record for: the first of its
-     * servers this server has, or null when it runs on every server.
+     * servers that names this server or one of its addresses, or null when
+     * it runs on every server.
      *
      * @return string|null
      */
     public function server()
     {
-        $ips = ExecutorFacade::getIPs();
-
         foreach ($this->executor->servers as $server) {
-            if (in_array($server, $ips, true)) {
+            if (is_string($server) && ExecutorFacade::isServer($server)) {
                 return $server;
             }
         }
