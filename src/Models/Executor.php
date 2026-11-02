@@ -11,7 +11,7 @@ use Pharaonic\Laravel\Executor\Enums\ExecutorType;
  * @property string $name
  * @property array<array-key, mixed>|null $tags
  * @property array<array-key, mixed>|null $servers
- * @property int|null $batch
+ * @property int $batch
  * @property int $executed
  * @property \Carbon\CarbonInterface|null $last_executed_at
  */
