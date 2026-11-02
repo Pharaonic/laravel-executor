@@ -25,16 +25,47 @@ public $tags = ['cache', 'search'];
 
 ### Servers
 
-`$servers` lists the IP addresses of the servers the executor belongs to. Leave it empty to run on every server.
+`$servers` lists the servers the executor belongs to, by name or by IP address. Leave it empty to run on every server.
 
 ```php title="executors/2026_01_15_120000_warm_caches.php"
-public $servers = ['10.0.0.11', '10.0.0.12'];
+public $servers = ['web-1', 'web-2'];
 ```
 
-The package compares the list with the addresses of the server's network interfaces, ignoring `127.0.0.1` and `::1`. On the other servers, the executor is skipped and doesn't appear as run.
+#### Naming Servers
 
-:::info Once Means Once for All Servers
-Every server shares the executors table, so a `ONCE` executor runs on only one of its servers: the first one that deploys. Use `ALWAYS` for work every listed server must do itself, such as clearing local caches, and `ONCE` for work that one server does for all of them, such as dispatching a job.
+Give each server a fixed name with `EXECUTOR_SERVER`, and list those names in `$servers`. Names are the recommended way: they stay the same when a server's address changes, and they read better than addresses.
+
+```bash title=".env" no-line-numbers
+EXECUTOR_SERVER=web-1
+```
+
+A server matches an entry of `$servers` when the entry is its `EXECUTOR_SERVER` name or one of the addresses of its network interfaces, ignoring `127.0.0.1` and `::1`. A list can mix both, such as `['web-1', '10.0.0.12']`. On the other servers, the executor is skipped and doesn't appear as run.
+
+:::warning Docker and Other Containers
+Inside a container, the package sees the container's own address, such as `172.17.0.5`, not the address of the host, and the address changes when the container is recreated. Host addresses in `$servers` then never match, and container addresses match only until the next recreate, after which `ONCE` executors run again. Set `EXECUTOR_SERVER` in each container's environment and list the names instead.
+:::
+
+#### Records per Server
+
+An executor with servers keeps one record per server, stored under the first entry of the list that matches the server:
+
+| Type | Without `$servers` | With `$servers` |
+| --- | --- | --- |
+| `ONCE` | Runs once, on the first server that deploys | Runs once on each listed server |
+| `ALWAYS` | Runs on every server, every deploy | Runs on each listed server, every deploy |
+
+Use `$servers` with `ONCE` for setup each server needs once, such as linking local storage, and leave `$servers` empty for work one server does for all of them, such as dispatching a job.
+
+#### Changing the List
+
+- **Removing a server:** it stops running the executor, and `execute:rollback` on it leaves the executor alone. Its record stays, so a `ONCE` executor doesn't run again if you add the server back.
+- **Adding a server:** it runs the executor on its next deploy.
+- **Emptying the list:** the servers that already ran a `ONCE` executor skip it, and the first other server that deploys runs it once for all of them.
+- **A server's address changes:** a server listed by address counts as a new server and runs its `ONCE` executors again. A server listed by its `EXECUTOR_SERVER` name keeps its record.
+- **Switching a server from its address to a name:** set `EXECUTOR_SERVER` while the old address is still in the list, deploy once, then replace the address with the name. The record stays under the old address and the server still finds it by that address; it keeps finding it as long as the address doesn't change.
+
+:::info Records From Earlier Releases
+A record written before per-server records has no server, so it counts as run on every server and its `ONCE` executor doesn't run again.
 :::
 
 ### Running Artisan Commands

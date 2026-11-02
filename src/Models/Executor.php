@@ -2,16 +2,19 @@
 
 namespace Pharaonic\Laravel\Executor\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Pharaonic\Laravel\Executor\Classes\ExecutorLock;
 use Pharaonic\Laravel\Executor\Enums\ExecutorType;
 
 /**
  * @property int $id
  * @property ExecutorType $type
  * @property string $name
+ * @property string|null $server
  * @property array<array-key, mixed>|null $tags
  * @property array<array-key, mixed>|null $servers
- * @property int|null $batch
+ * @property int $batch
  * @property int $executed
  * @property \Carbon\CarbonInterface|null $last_executed_at
  */
@@ -32,6 +35,7 @@ class Executor extends Model
     protected $fillable = [
         'type',
         'name',
+        'server',
         'tags',
         'servers',
         'batch',
@@ -52,6 +56,14 @@ class Executor extends Model
         'executed' => 'integer',
         'last_executed_at' => 'datetime',
     ];
+
+    /**
+     * Hide the lock row, which shares the table.
+     */
+    protected static function booted(): void
+    {
+        static::addGlobalScope('withoutLock', fn (Builder $query) => $query->where('name', '!=', ExecutorLock::NAME));
+    }
 
     /**
      * Get the current connection name for the model.

@@ -14,19 +14,19 @@ The executor still extends the 1.x class. Use `Pharaonic\Laravel\Executor\Classe
 
 ### "Column not found: name" after upgrading from 1.x
 
-The executors table still has the 1.x shape. Run `php artisan migrate`, which converts it.
+The executors table still has the 1.x shape, and `php artisan migrate` doesn't change it. Recreate the table and copy its records, as described in [Upgrading](#upgrading).
 
 ### "Another server has been running the executors for more than 600 seconds."
 
-Another `php artisan execute` holds the lock: a deploy is still running, or a run stopped before releasing it and the lock hasn't expired yet. Wait for the other deploy, or raise `EXECUTOR_LOCK_SECONDS` when your executors take longer than 600 seconds.
+Another `php artisan execute`, `execute:rollback` or `execute:fresh` holds the lock: a deploy is still running, or a run stopped before releasing it and the lock hasn't expired yet. Wait for the other deploy, or raise `EXECUTOR_LOCK_SECONDS` when your executors take longer than 600 seconds.
 
-### "Couldn't take the executor lock on the [database] cache store"
+### "Couldn't take the executor lock: …"
 
-`php artisan execute` couldn't reach the cache store of its lock, so it stopped before running anything. The message ends with the store's own error. With the `database` store, create the cache tables (`php artisan cache:table` on Laravel 10, then `php artisan migrate`), or point `EXECUTOR_LOCK_STORE` at another store every server shares, such as `redis`.
+The command couldn't write the lock row to the executors table, so it stopped before running anything. The message ends with the database error. Run `php artisan migrate`, which adds the `server` column the lock needs, and check that `EXECUTOR_CONNECTION` reaches the database.
 
 ### A `ONCE` executor ran on two servers
 
-The servers don't share the lock's cache store. Point `EXECUTOR_LOCK_STORE` at a store every server uses, such as `redis` or `database`.
+When the executor has `$servers`, it runs once on each listed server; leave `$servers` empty to run it once for all of them. Otherwise the servers don't share the executors table: point `EXECUTOR_CONNECTION` at a connection every server uses.
 
 ### An executor doesn't appear in `execute:status`
 
@@ -42,7 +42,7 @@ Two folders contain a file with the same name. Rename one of them, keeping its t
 
 ### An executor runs on the wrong server
 
-`$servers` is compared with the addresses of the server's network interfaces. Behind NAT or a load balancer, use the server's private address. Check what the package sees with `php artisan tinker` and `Executor::getIPs()`.
+`$servers` is compared with the server's `EXECUTOR_SERVER` name and the addresses of its network interfaces. Behind NAT or a load balancer, use the server's private address; inside Docker or another container, the package sees the container's address, so set `EXECUTOR_SERVER` and list names instead. Check what the package sees with `php artisan tinker`, `Executor::getServer()` and `Executor::getIPs()`.
 
 ### `execute:make` prints a deprecation notice
 

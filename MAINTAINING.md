@@ -18,8 +18,9 @@ None. `pharaonic/php-smart-enum` adds the `ExecutorType` helpers, and `pharaonic
 
 Configuration keys (`pharaonic.executor.*`), publish tags, and registered Blade, Artisan, macro, and validation names are public API.
 
-- Configuration: `pharaonic.executor.connection`, `pharaonic.executor.table`, `pharaonic.executor.lock.store`, and `pharaonic.executor.lock.seconds`, with the `EXECUTOR_CONNECTION`, `EXECUTOR_TABLE`, `EXECUTOR_LOCK_STORE`, and `EXECUTOR_LOCK_SECONDS` environment variables.
-- `php artisan execute` runs inside the cache lock `pharaonic:executor:execute` and reads the executor records only after taking it.
+- Configuration: `pharaonic.executor.connection`, `pharaonic.executor.table`, `pharaonic.executor.server`, and `pharaonic.executor.lock.seconds`, with the `EXECUTOR_CONNECTION`, `EXECUTOR_TABLE`, `EXECUTOR_SERVER`, and `EXECUTOR_LOCK_SECONDS` environment variables. `pharaonic.executor.lock.store` (`EXECUTOR_LOCK_STORE`) was removed in the release after 10.0.3 and is ignored.
+- `execute`, `execute:rollback`, and `execute:fresh` run inside the database lock: the reserved row `pharaonic:executor:lock` (server `*`) of the executors table, guarded by the unique `name` and `server` index. The executor model hides that row with a global scope. `execute` reads the records, from the write connection, only after taking the lock.
+- An executor with `$servers` keeps one record per server (`server` is the first entry of `$servers` that is the server's `EXECUTOR_SERVER` name or one of its addresses; records are found by any of them); an executor without `$servers` keeps one shared record (`server` null). A shared record of an executor with `$servers` counts as run on every server.
 - Commands: `make:executor`, `execute {name?} {--tags=}`, `execute:rollback {--steps=1}`, `execute:fresh`, and `execute:status`. `execute:make` and `make:execute` are hidden deprecated aliases that warn and still create the executor.
 - Publish tags: `pharaonic`, `laravel-executor`, `pharaonic-config`, `executor-config`, `pharaonic-migrations`, and `executor-migrations`. The 1.x tags `config` and `migrations` stay as deprecated aliases.
 - Extension points: `Classes\Executor` (with `$type`, `$tags`, `$servers`, `up()`, `down()`, and the final `job()` and `command()` helpers), the `Facades\Executor` facade, and `ExecutorPool::addPath()`.
@@ -30,7 +31,7 @@ Configuration keys (`pharaonic.executor.*`), publish tags, and registered Blade,
 
 - The package requires `laravel/framework`, not single `illuminate/*` components: `job()` returns `Illuminate\Foundation\Bus\PendingDispatch` and the package relies on the foundation path helpers.
 - The migration file name `2024_07_07_000001_create_executors_table.php` never changes, or applications run it again.
-- 1.x created the same migration file with another schema (`executor`, `tag`). `2026_10_25_000001_upgrade_executors_table_from_1x.php` converts that table and does nothing on any other table; keep it on every line.
+- `2024_07_07_000001_create_executors_table.php` creates the table and `2026_11_02_000001_add_server_to_executors_table.php` adds the `server` column; it does nothing on a table that already has it. Later schema changes go in new migrations, never in released ones, because applications don't run a migration again. 1.x created the create migration's file with another schema (`executor`, `tag`); the package doesn't convert that table, and the upgrade guide shows how to recreate it.
 - `tests/Compatibility` pins the names kept from 1.x, 11.x, and 12.x.
 
 ## Branch notes

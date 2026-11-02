@@ -3,14 +3,13 @@
 namespace Pharaonic\Laravel\Executor\Console;
 
 use Illuminate\Console\Command;
-use Illuminate\Contracts\Cache\LockProvider;
-use Illuminate\Contracts\Cache\LockTimeoutException;
-use Illuminate\Support\Facades\Cache;
+use Pharaonic\Laravel\Executor\Console\Concerns\RunsWithLock;
 use Pharaonic\Laravel\Executor\Facades\Executor as ExecutorFacade;
-use Throwable;
 
 class ExecuteCommand extends Command
 {
+    use RunsWithLock;
+
     /**
      * The name and signature of the console command.
      *
@@ -33,42 +32,7 @@ class ExecuteCommand extends Command
      */
     public function handle()
     {
-        $seconds = config('pharaonic.executor.lock.seconds', 600);
-        $seconds = is_numeric($seconds) ? (int) $seconds : 600;
-        $store = config('pharaonic.executor.lock.store');
-        $store = is_string($store) ? $store : null;
-        $cache = Cache::store($store)->getStore();
-
-        if (! $cache instanceof LockProvider) {
-            $this->runExecutors();
-
-            return 0;
-        }
-
-        $lock = $cache->lock('pharaonic:executor:execute', $seconds);
-
-        try {
-            $lock->block($seconds);
-        } catch (LockTimeoutException) {
-            $this->error("Another server has been running the executors for more than {$seconds} seconds.");
-
-            return 1;
-        } catch (Throwable $e) {
-            $name = $store ?? config('cache.default');
-            $name = is_string($name) ? $name : 'default';
-
-            $this->error("Couldn't take the executor lock on the [{$name}] cache store: {$e->getMessage()}");
-
-            return 1;
-        }
-
-        try {
-            $this->runExecutors();
-        } finally {
-            $lock->release();
-        }
-
-        return 0;
+        return $this->withLock(fn () => $this->runExecutors());
     }
 
     /**
