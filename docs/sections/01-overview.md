@@ -22,7 +22,7 @@ Every run is recorded in a batch, and the latest batches can be rolled back.
 Group executors with tags and run only the groups you need.
 
 ### Server Targeting {icon="globe"}
-List the server IP addresses an executor belongs to, and other servers skip it.
+List the server IP addresses an executor belongs to: other servers skip it, and each listed server keeps its own record.
 
 ### Status {icon="eye"}
 See every executor with its type, tags, servers, batch and whether it ran.

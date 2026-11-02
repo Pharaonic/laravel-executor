@@ -31,13 +31,18 @@ class ExecuteRollbackCommand extends Command
     public function handle()
     {
         $steps = $this->option('steps');
+        $records = ExecutorFacade::getRecords();
+        $items = ExecutorFacade::getPool()->collect($records)->getItems();
 
-        $batches = Executor::query()
-            ->orderBy('batch', 'desc')
-            ->groupBy('batch')
-            ->limit(is_numeric($steps) ? (int) $steps : 1)
-            ->pluck('batch')
-            ->toArray();
+        // The records of an executor limited to other servers stay for them.
+        $records = $records->reject(fn (Executor $record) => isset($items[$record->name]) && ! $items[$record->name]->runsHere());
+
+        $batches = $records->pluck('batch')
+            ->filter(fn ($batch) => is_int($batch))
+            ->unique()
+            ->sortDesc()
+            ->take(is_numeric($steps) ? (int) $steps : 1)
+            ->all();
 
         if (empty($batches)) {
             $this->warn('There are no executors has been found.');
@@ -45,19 +50,15 @@ class ExecuteRollbackCommand extends Command
             return 0;
         }
 
-        $items = ExecutorFacade::getPool()
-            ->collect(ExecutorFacade::getRecords())
-            ->getItems();
-
         foreach ($items as $item) {
-            if ($item->model && in_array($item->model->batch, $batches)) {
+            if ($item->model && $item->runsHere() && in_array($item->model->batch, $batches)) {
                 $this->info("Rolling back {$item->name}...");
 
                 $item->rollback();
             }
         }
 
-        Executor::query()->whereIn('batch', $batches)->delete();
+        Executor::query()->whereKey($records->whereIn('batch', $batches)->pluck('id')->all())->delete();
 
         $this->info('Executors has been rollback successfully.');
 

@@ -38,13 +38,25 @@ class ExecutorManager
     }
 
     /**
-     * Get all executor records, keyed by name.
+     * Get the executor records of this server, keyed by name: its own record
+     * of an executor limited to servers, or else the shared record.
      *
      * @return Collection<array-key, Executor>
      */
     public function getRecords()
     {
-        return Executor::all()->keyBy('name');
+        $ips = $this->getIPs();
+        $records = [];
+
+        foreach (Executor::all() as $record) {
+            if ($record->server === null || in_array($record->server, $ips, true)) {
+                $records[] = $record;
+            }
+        }
+
+        return collect($records)
+            ->sortBy(fn (Executor $record) => $record->server === null ? 0 : 1)
+            ->keyBy('name');
     }
 
     /**

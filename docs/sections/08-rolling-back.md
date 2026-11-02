@@ -12,8 +12,8 @@ Roll back several batches with `--steps`:
 php artisan execute:rollback --steps=3
 ```
 
-:::warning Run It on the Right Server
-A rollback runs `down()` on the server where you run the command, even for executors whose `$servers` list other servers, and then deletes the records for every server. Run `execute:rollback` on a server the rolled-back executors belong to.
+:::info Rollbacks per Server
+A rollback only touches the records this server sees: the records of executors without `$servers`, and this server's own records of executors with `$servers`. It never runs `down()` for an executor limited to other servers, and it leaves their records for them. To roll back an executor on each of its servers, run `execute:rollback` on each of them. `--steps` counts the batches of this server.
 :::
 
 :::info Deleted Files
