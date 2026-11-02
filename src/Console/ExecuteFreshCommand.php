@@ -3,10 +3,13 @@
 namespace Pharaonic\Laravel\Executor\Console;
 
 use Illuminate\Console\Command;
+use Pharaonic\Laravel\Executor\Console\Concerns\RunsWithLock;
 use Pharaonic\Laravel\Executor\Models\Executor;
 
 class ExecuteFreshCommand extends Command
 {
+    use RunsWithLock;
+
     /**
      * The name and signature of the console command.
      *
@@ -28,10 +31,8 @@ class ExecuteFreshCommand extends Command
      */
     public function handle()
     {
-        Executor::query()->truncate();
+        $code = $this->withLock(fn () => Executor::query()->delete());
 
-        $this->call('execute');
-
-        return 0;
+        return $code === 0 ? $this->call('execute') : $code;
     }
 }
