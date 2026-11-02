@@ -4,13 +4,14 @@ Pick the part for the release you're on. From 12.1 there's nothing to change in 
 
 ### From 12.x
 
-Upgrade Laravel to 13 and require this line:
+Upgrade Laravel to 13, require this line, and run the migrations, which add the `server` column:
 
 ```bash title="Terminal" no-line-numbers
 composer require pharaonic/laravel-executor:^13.0
+php artisan migrate
 ```
 
-From 12.1 or later, that's all: 13.0.0 has the same API and behavior. From 12.0.x, the table and the executor classes stay the same and `php artisan migrate` has nothing to convert, but update the case names and check the behavior changes below.
+From 12.2 or later, that's all: this line has the same API and behavior. From 12.1, check the 13.1.0 changes in the changelog, such as the lock moving to the executors table. From 12.0.x, the executor classes stay the same, but update the case names and check the behavior changes below.
 
 #### Executor Types Are Upper Case
 
@@ -26,7 +27,7 @@ The `ExecutorType` cases are renamed, and the old names are removed. Executors t
 #### Behavior Changes
 
 - An executor with `$servers` runs only on those servers, including on its first run. In 12.0.x, the first run happened on every server.
-- `php artisan execute` takes a cache lock. When several servers deploy at the same time, point `EXECUTOR_LOCK_STORE` at a store they share, as described in [Running Executors](#running-executors).
+- `php artisan execute`, `execute:rollback` and `execute:fresh` take a lock in the executors table, so servers that deploy at the same time run them one after another, as described in [Running Executors](#running-executors).
 - Invalid executor declarations throw `InvalidArgumentException`, and duplicate executor names throw `LogicException`, instead of `Exception`.
 
 #### Deprecated Names
