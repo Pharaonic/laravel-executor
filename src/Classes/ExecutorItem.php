@@ -72,10 +72,8 @@ class ExecutorItem
      */
     public function isExecutable()
     {
-        if ($servers = $this->executor->servers ?: null) {
-            if (! array_filter(ExecutorFacade::getIPs(), fn ($ip) => in_array($ip, $servers))) {
-                return false;
-            }
+        if (! $this->runsHere()) {
+            return false;
         }
 
         if (! $this->model) {
@@ -92,6 +90,34 @@ class ExecutorItem
     }
 
     /**
+     * Get the server this executor keeps its record for: the first of its
+     * servers that names this server or one of its addresses, or null when
+     * it runs on every server.
+     *
+     * @return string|null
+     */
+    public function server()
+    {
+        foreach ($this->executor->servers as $server) {
+            if (is_string($server) && ExecutorFacade::isServer($server)) {
+                return $server;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Determine if the executor runs on this server.
+     *
+     * @return bool
+     */
+    public function runsHere()
+    {
+        return empty($this->executor->servers) || $this->server() !== null;
+    }
+
+    /**
      * Run the executor.
      *
      * @return void
@@ -104,6 +130,7 @@ class ExecutorItem
             $this->model = new Model([
                 'type' => $this->executor->type,
                 'name' => $this->name,
+                'server' => $this->server(),
                 'tags' => $this->executor->tags,
                 'servers' => $this->executor->servers ?: null,
                 'batch' => $nextBatch,
