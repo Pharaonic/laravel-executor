@@ -22,7 +22,7 @@ php artisan execute:status
 | Tags | The executor's tags, or `None` |
 | Servers | The server IP addresses, or `All` |
 | Batch | The batch of the first run, or `N/A` when it never ran |
-| Executed | Whether it has run at least once |
+| Executed | Whether it has run at least once; for an executor with `$servers`, whether it has run on this server |
 
 The same data is available in code through the facade:
 

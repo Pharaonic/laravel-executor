@@ -9,6 +9,7 @@ use Pharaonic\Laravel\Executor\Enums\ExecutorType;
  * @property int $id
  * @property ExecutorType $type
  * @property string $name
+ * @property string|null $server
  * @property array<array-key, mixed>|null $tags
  * @property array<array-key, mixed>|null $servers
  * @property int $batch
@@ -32,6 +33,7 @@ class Executor extends Model
     protected $fillable = [
         'type',
         'name',
+        'server',
         'tags',
         'servers',
         'batch',

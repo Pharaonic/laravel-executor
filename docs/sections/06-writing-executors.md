@@ -33,8 +33,24 @@ public $servers = ['10.0.0.11', '10.0.0.12'];
 
 The package compares the list with the addresses of the server's network interfaces, ignoring `127.0.0.1` and `::1`. On the other servers, the executor is skipped and doesn't appear as run.
 
-:::info Once Means Once for All Servers
-Every server shares the executors table, so a `ONCE` executor runs on only one of its servers: the first one that deploys. Use `ALWAYS` for work every listed server must do itself, such as clearing local caches, and `ONCE` for work that one server does for all of them, such as dispatching a job.
+An executor with servers keeps one record per server, stored under the first address of the list that the server has:
+
+| Type | Without `$servers` | With `$servers` |
+| --- | --- | --- |
+| `ONCE` | Runs once, on the first server that deploys | Runs once on each listed server |
+| `ALWAYS` | Runs on every server, every deploy | Runs on each listed server, every deploy |
+
+Use `$servers` with `ONCE` for setup each server needs once, such as linking local storage, and leave `$servers` empty for work one server does for all of them, such as dispatching a job.
+
+#### Changing the List
+
+- **Removing a server:** it stops running the executor, and `execute:rollback` on it leaves the executor alone. Its record stays, so a `ONCE` executor doesn't run again if you add the server back.
+- **Adding a server:** it runs the executor on its next deploy.
+- **Emptying the list:** the servers that already ran a `ONCE` executor skip it, and the first other server that deploys runs it once for all of them.
+- **A server's address changes:** the server is identified by its address, so it counts as a new server and runs its `ONCE` executors again.
+
+:::info Records From Earlier Releases
+A record written before per-server records has no server, so it counts as run on every server and its `ONCE` executor doesn't run again.
 :::
 
 ### Running Artisan Commands
