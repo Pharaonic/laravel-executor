@@ -49,7 +49,7 @@
 | Method | Description | Returns |
 | --- | --- | --- |
 | `getPool()` | The pool of executor folders | `ExecutorPool` |
-| `getRecords()` | Every executor record, keyed by name | `Collection` |
+| `getRecords()` | The executor records this server sees, keyed by name: its own record of an executor with `$servers`, or else the shared record | `Collection` |
 | `getNextBatchNumber()` | One higher than the highest batch | `int` |
 | `getIPs()` | The server's IP addresses, without `127.0.0.1` and `::1` | `array` |
 | `info()` | Every executor's name, path, type, tags, servers, batch and status, keyed by name | `array` |
@@ -72,6 +72,7 @@
 | `id` | `int` | Primary key |
 | `type` | `ExecutorType` | The executor's type |
 | `name` | `string` | The executor's file name without `.php` |
+| `server` | `?string` | The server of the record for an executor with `$servers`, or `null` for a shared record; unique together with `name` |
 | `tags` | `?array` | The executor's tags |
 | `servers` | `?array` | The executor's server IP addresses |
 | `batch` | `int` | The batch of the first run |
