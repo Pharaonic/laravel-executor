@@ -45,8 +45,6 @@ class ExecutorManager
      */
     public function getRecords()
     {
-        $ips = $this->getIPs();
-
         // Read from the write connection, so a replica that lags behind
         // never hides a record another server has just written.
         $query = Executor::query();
@@ -54,7 +52,7 @@ class ExecutorManager
         $records = [];
 
         foreach ($query->get() as $record) {
-            if ($record instanceof Executor && ($record->server === null || in_array($record->server, $ips, true))) {
+            if ($record instanceof Executor && ($record->server === null || $this->isServer($record->server))) {
                 $records[] = $record;
             }
         }
@@ -88,6 +86,28 @@ class ExecutorManager
         $batch = $query->max('batch');
 
         return (is_numeric($batch) ? (int) $batch : 0) + 1;
+    }
+
+    /**
+     * Get the name of this server, from `pharaonic.executor.server`.
+     *
+     * @return string|null
+     */
+    public function getServer()
+    {
+        $server = config('pharaonic.executor.server');
+
+        return is_string($server) && $server !== '' ? $server : null;
+    }
+
+    /**
+     * Determine if a server name or IP address is this server.
+     *
+     * @return bool
+     */
+    public function isServer(string $server)
+    {
+        return $server === $this->getServer() || in_array($server, $this->getIPs(), true);
     }
 
     /**

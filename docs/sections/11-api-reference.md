@@ -18,7 +18,7 @@
 | --- | --- |
 | `public $type` | `ExecutorType::ONCE` or `ExecutorType::ALWAYS` (default) |
 | `public $tags` | Array of tags, empty by default |
-| `public $servers` | Array of server IP addresses, empty for every server |
+| `public $servers` | Array of server names (`EXECUTOR_SERVER`) or IP addresses, empty for every server |
 | `up(): void` | Runs the task |
 | `down(): void` | Reverses the task on rollback |
 | `command(string $command, array $parameters = []): int` | Calls an Artisan command and returns its exit code |
@@ -52,6 +52,8 @@
 | `getRecords()` | The executor records this server sees, keyed by name: its own record of an executor with `$servers`, or else the shared record | `Collection` |
 | `getNextBatchNumber()` | One higher than the highest batch | `int` |
 | `getIPs()` | The server's IP addresses, without `127.0.0.1` and `::1` | `array` |
+| `getServer()` | The server's `EXECUTOR_SERVER` name | `?string` |
+| `isServer(string $server)` | Whether a name or IP address is this server | `bool` |
 | `info()` | Every executor's name, path, type, tags, servers, batch and status, keyed by name | `array` |
 
 ### ExecutorPool
@@ -74,7 +76,7 @@
 | `name` | `string` | The executor's file name without `.php` |
 | `server` | `?string` | The server of the record for an executor with `$servers`, or `null` for a shared record; unique together with `name` |
 | `tags` | `?array` | The executor's tags |
-| `servers` | `?array` | The executor's server IP addresses |
+| `servers` | `?array` | The executor's server names or IP addresses |
 | `batch` | `int` | The batch of the first run |
 | `executed` | `int` | How many times it has run |
 | `last_executed_at` | `?CarbonInterface` | When it last ran |

@@ -19,7 +19,7 @@ items:
     text: Tag executors and run a subset with `php artisan execute --tags=cache,search`.
   - icon: globe
     title: Server Targeting
-    text: List server IPs in `$servers` to keep an executor to the machines it belongs on.
+    text: List server names or IPs in `$servers` to keep an executor to the machines it belongs on, with one record per server.
   - icon: eye
     title: Status at a Glance
     text: '`execute:status` shows every executor with its type, tags, servers, batch and whether it ran.'
