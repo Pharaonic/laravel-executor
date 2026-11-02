@@ -2,14 +2,32 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
+use Pharaonic\Laravel\Executor\Classes\ExecutorLock;
 use Pharaonic\Laravel\Executor\Models\Executor;
 use Pharaonic\Laravel\Executor\Tests\Fixtures\Recorder;
 
+function holdTheLock(DateTimeInterface $until): void
+{
+    DB::table('executors')->insert([
+        'name' => ExecutorLock::NAME,
+        'server' => '*',
+        'batch' => 0,
+        'executed' => 1,
+        'last_executed_at' => $until,
+    ]);
+}
+
+function lockRows(): int
+{
+    return DB::table('executors')->where('name', ExecutorLock::NAME)->count();
+}
+
 it('waits for another server and fails when it keeps the lock', function () {
     config(['pharaonic.executor.lock.seconds' => 1]);
-    Cache::lock('pharaonic:executor:execute', 10)->acquire();
+    holdTheLock(now()->addMinutes(10));
 
     $this->writeExecutor('once', 'public $type = ExecutorType::ONCE;');
 
@@ -17,7 +35,33 @@ it('waits for another server and fails when it keeps the lock', function () {
         ->expectsOutput('Another server has been running the executors for more than 1 seconds.')
         ->assertExitCode(1);
 
-    expect(Recorder::$calls)->toBe([]);
+    expect(Recorder::$calls)->toBe([])
+        ->and(lockRows())->toBe(1);
+});
+
+it('takes over a lock that has expired', function () {
+    holdTheLock(now()->subSecond());
+
+    $this->writeExecutor('always');
+
+    $this->artisan('execute')->assertExitCode(0);
+
+    expect(Recorder::$calls)->toBe(['up:always'])
+        ->and(lockRows())->toBe(0);
+});
+
+it('lets only one lock hold the row', function () {
+    $first = new ExecutorLock(60);
+    $second = new ExecutorLock(60);
+
+    expect($first->acquire())->toBeTrue()
+        ->and($second->acquire())->toBeFalse();
+
+    $second->release();
+    expect(lockRows())->toBe(1);
+
+    $first->release();
+    expect($second->acquire())->toBeTrue();
 });
 
 it('reads the records after taking the lock', function () {
@@ -36,30 +80,23 @@ it('releases the lock after running', function () {
 
     $this->artisan('execute')->assertExitCode(0);
 
-    expect(Cache::lock('pharaonic:executor:execute', 10)->get())->toBeTrue();
+    expect(lockRows())->toBe(0);
 });
 
-it('uses the configured cache store', function () {
-    config(['cache.stores.executor-locks' => ['driver' => 'array'], 'pharaonic.executor.lock.store' => 'executor-locks']);
-    Cache::lock('pharaonic:executor:execute', 10)->acquire();
+it('never shows the lock row as an executor record', function () {
+    holdTheLock(now()->addMinutes(10));
 
-    $this->writeExecutor('always');
-
-    $this->artisan('execute')->assertExitCode(0);
-
-    expect(Recorder::$calls)->toBe(['up:always']);
+    expect(Executor::query()->count())->toBe(0)
+        ->and(Executor::query()->max('batch'))->toBeNull();
 });
 
-it('stops with a clear message when the cache store cannot take the lock', function () {
-    config([
-        'cache.stores.broken' => ['driver' => 'database', 'connection' => 'testing', 'table' => 'missing_cache', 'lock_table' => 'missing_cache_locks'],
-        'pharaonic.executor.lock.store' => 'broken',
-    ]);
+it('stops with a clear message when the table cannot hold the lock', function () {
+    Schema::drop('executors');
 
     $this->writeExecutor('always');
 
     $this->artisan('execute')
-        ->expectsOutputToContain("Couldn't take the executor lock on the [broken] cache store:")
+        ->expectsOutputToContain("Couldn't take the executor lock:")
         ->assertExitCode(1);
 
     expect(Recorder::$calls)->toBe([]);
@@ -83,5 +120,17 @@ return new class () extends Executor {
 PHP);
 
     expect(fn () => $this->artisan('execute')->run())->toThrow(RuntimeException::class, 'The executor failed.')
-        ->and(Cache::lock('pharaonic:executor:execute', 10)->get())->toBeTrue();
+        ->and(lockRows())->toBe(0);
 });
+
+it('runs rollback and fresh under the lock', function (string $command) {
+    config(['pharaonic.executor.lock.seconds' => 1]);
+    holdTheLock(now()->addMinutes(10));
+    Executor::query()->create(['type' => 2, 'name' => 'once', 'batch' => 1, 'executed' => 1]);
+
+    $this->artisan($command)
+        ->expectsOutput('Another server has been running the executors for more than 1 seconds.')
+        ->assertExitCode(1);
+
+    expect(Executor::query()->count())->toBe(1);
+})->with(['execute:rollback', 'execute:fresh']);
