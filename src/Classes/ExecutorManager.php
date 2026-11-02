@@ -46,10 +46,15 @@ class ExecutorManager
     public function getRecords()
     {
         $ips = $this->getIPs();
+
+        // Read from the write connection, so a replica that lags behind
+        // never hides a record another server has just written.
+        $query = Executor::query();
+        $query->useWritePdo();
         $records = [];
 
-        foreach (Executor::all() as $record) {
-            if ($record->server === null || in_array($record->server, $ips, true)) {
+        foreach ($query->get() as $record) {
+            if ($record instanceof Executor && ($record->server === null || in_array($record->server, $ips, true))) {
                 $records[] = $record;
             }
         }
@@ -78,7 +83,9 @@ class ExecutorManager
      */
     public function getNextBatchNumber()
     {
-        $batch = Executor::query()->max('batch');
+        $query = Executor::query();
+        $query->useWritePdo();
+        $batch = $query->max('batch');
 
         return (is_numeric($batch) ? (int) $batch : 0) + 1;
     }

@@ -14,7 +14,9 @@ Every executor that runs for the first time in the same `php artisan execute` ca
 
 ### Several Servers at Once
 
-When servers deploy at the same time, `php artisan execute` takes a cache lock, so they run the executors one after another. The next server reads the executors table only after the lock is free, so a `ONCE` executor that another server just ran is skipped.
+When servers deploy at the same time, `php artisan execute` takes a lock, so they run the executors one after another. The next server reads the executors table only after the lock is free, so a `ONCE` executor that another server just ran is skipped. `execute:rollback` and `execute:fresh` take the same lock.
+
+The lock is a reserved row of the executors table, so every server that shares the table shares the lock, without any cache setup. A server that stops while holding it frees it after `pharaonic.executor.lock.seconds`. The records are read from the write connection, so a read replica that lags behind can't hide a run.
 
 If the lock isn't free within `pharaonic.executor.lock.seconds` (600 by default), the command fails with exit code `1`:
 
@@ -22,11 +24,7 @@ If the lock isn't free within `pharaonic.executor.lock.seconds` (600 by default)
 Another server has been running the executors for more than 600 seconds.
 ```
 
-If the cache store itself fails, for example a `database` store without its tables, the command stops with exit code `1` before running any executor, and prints the store's error.
-
-:::warning Shared Cache Store
-The lock only works across servers when they share its cache store, such as `redis`, `database`, `memcached` or `dynamodb`. With the `file` or `array` store, each server has its own lock. Set the store with `EXECUTOR_LOCK_STORE`.
-:::
+If the lock can't be written, for example before `php artisan migrate` has added the `server` column, the command stops with exit code `1` before running any executor, and prints the database error.
 
 ### Running One Executor
 

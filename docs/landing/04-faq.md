@@ -28,7 +28,7 @@ Run it in your deploy script after `php artisan migrate`, on every server. Each 
 
 ## What happens when several servers deploy at the same time?
 
-`php artisan execute` takes a cache lock, so the servers run the executors one after another and a `ONCE` executor runs only once. Use a cache store every server shares, such as Redis or the database.
+`php artisan execute` takes a lock in the executors table, so the servers run the executors one after another and a `ONCE` executor runs only once. Every server that shares the table shares the lock, with no cache setup.
 
 ## Can I keep executors outside the `executors` folder?
 
