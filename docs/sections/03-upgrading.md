@@ -1,6 +1,6 @@
 ## Upgrading
 
-Pick the part for the release you're on: 12.0.x needs a few renames, while 1.x needs a table migration and changes to every executor file.
+Pick the part for the release you're on: 12.0.x needs a few renames, while 1.x needs a new table and changes to every executor file.
 
 ### From 12.0.x
 
@@ -35,7 +35,7 @@ The deprecated names still work.
 
 ### From 1.x
 
-On Laravel 12, this line replaces 1.x. Executors become classes with `up()` and `down()`, and the executors table gets new columns. Plan the upgrade as a deploy of its own: update the package, migrate the table, then update every executor file.
+On Laravel 12, this line replaces 1.x. Executors become classes with `up()` and `down()`, and the executors table has a new shape. Plan the upgrade as a deploy of its own: update the package, recreate the table, then update every executor file.
 
 #### 1. Update the Package
 
@@ -45,24 +45,38 @@ Composer doesn't move from 1.x to this line on its own, so require it explicitly
 composer require pharaonic/laravel-executor:^12.1
 ```
 
-#### 2. Migrate the Table
+#### 2. Recreate the Table
 
-The package ships a migration that converts the 1.x table and keeps every record:
-
-```bash title="Terminal" no-line-numbers
-php artisan migrate
-```
+The executors table has a new shape, and the package doesn't convert the 1.x table:
 
 | 1.x column | Now |
 | --- | --- |
 | `executor` | `name` |
 | `tag` (text) | `tags` (JSON array: `cache` becomes `["cache"]`) |
 | | `servers` (new, empty) |
+| `batch` (`1` by default) | `batch` (required, no default) |
 
-`type`, `batch`, `executed` and `last_executed_at` keep their values, so executors that already ran don't run again. The migration only changes tables that still have the 1.x `executor` column.
+1.x created the table with the same migration file name, `2024_07_07_000001_create_executors_table`, so `php artisan migrate` treats it as already run and keeps the 1.x table. Recreate the table yourself and copy the records into it, so executors that already ran don't run again. In `php artisan tinker`:
+
+```php title="php artisan tinker"
+$rows = DB::table('executors')->orderBy('id')->get();
+
+Schema::drop('executors');
+DB::table('migrations')->where('migration', '2024_07_07_000001_create_executors_table')->delete();
+Artisan::call('migrate', ['--path' => 'vendor/pharaonic/laravel-executor/database/migrations', '--force' => true]);
+
+$rows->each(fn ($row) => DB::table('executors')->insert([
+    'type' => $row->type,
+    'name' => $row->executor,
+    'tags' => $row->tag === null ? null : json_encode([$row->tag]),
+    'batch' => $row->batch,
+    'executed' => $row->executed,
+    'last_executed_at' => $row->last_executed_at,
+]));
+```
 
 :::warning Back Up First
-The migration drops the `executor` and `tag` columns after copying them, and it can't be rolled back to the 1.x shape. Back up the executors table before you migrate.
+The records live only in the tinker session between dropping the table and inserting them again. Back up the executors table before you start. If you skip the copy, every `ONCE` executor runs again on the next `php artisan execute`.
 :::
 
 #### 3. Update Every Executor File
