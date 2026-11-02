@@ -4,7 +4,7 @@ Pick the part for the release you're on: 12.0.x needs a few renames, while 1.x n
 
 ### From 12.0.x
 
-12.1.0 keeps the table and the executor classes of 12.0.x; `php artisan migrate` has nothing to convert. Update the case names and check the behavior changes below.
+This line keeps the table and the executor classes of 12.0.x. Run `php artisan migrate` after updating, which adds the `server` column, then update the case names and check the behavior changes below.
 
 #### Executor Types Are Upper Case
 
@@ -20,7 +20,7 @@ The `ExecutorType` cases are renamed, and the old names are removed. Executors t
 #### Behavior Changes
 
 - An executor with `$servers` runs only on those servers, including on its first run. In 12.0.x, the first run happened on every server.
-- `php artisan execute` takes a cache lock. When several servers deploy at the same time, point `EXECUTOR_LOCK_STORE` at a store they share, as described in [Running Executors](#running-executors).
+- `php artisan execute`, `execute:rollback` and `execute:fresh` take a lock in the executors table, so servers that deploy at the same time run them one after another, as described in [Running Executors](#running-executors).
 - Invalid executor declarations throw `InvalidArgumentException`, and duplicate executor names throw `LogicException`, instead of `Exception`.
 
 #### Deprecated Names
