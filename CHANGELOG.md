@@ -7,6 +7,7 @@ All notable changes to this project are documented here.
 ### Added
 
 - An executor with `$servers` keeps one record per server: a `ONCE` executor runs once on each listed server, and an `ALWAYS` executor runs on each listed server on every deploy. Executors without `$servers` keep one shared record, as before. Run `php artisan migrate` after updating: a new migration adds the `server` column. Records written before it count as run on every server, so their `ONCE` executors don't run again.
+- `EXECUTOR_SERVER` (`pharaonic.executor.server`) names the server, and `$servers` accepts those names next to IP addresses. A named server keeps its records when its address changes, which makes `$servers` work in Docker and other containers. `Executor::getServer()` returns the name, and `Executor::isServer()` tells whether a name or address is this server.
 
 ### Changed
 
