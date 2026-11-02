@@ -20,7 +20,7 @@ php artisan execute:status
 | Name | The file name without `.php` |
 | Type | `Once` or `Always` |
 | Tags | The executor's tags, or `None` |
-| Servers | The server IP addresses, or `All` |
+| Servers | The server names or IP addresses, or `All` |
 | Batch | The batch of the first run, or `N/A` when it never ran |
 | Executed | Whether it has run at least once; for an executor with `$servers`, whether it has run on this server |
 

@@ -141,7 +141,7 @@ use Pharaonic\Laravel\Executor\Enums\ExecutorType;
 return new class () extends Executor {
     public $type = ExecutorType::ONCE;
 
-    public $servers = ['10.0.0.11', '10.0.0.12'];
+    public $servers = ['web-1', 'web-2'];
 
     public function up(): void
     {
@@ -155,4 +155,4 @@ return new class () extends Executor {
 };
 ```
 
-Each listed server runs it on its first deploy and skips it after that. A server added to the list later runs it on its next deploy.
+Each web server sets its name with `EXECUTOR_SERVER=web-1` or `EXECUTOR_SERVER=web-2`. Each listed server runs the executor on its first deploy and skips it after that. A server added to the list later runs it on its next deploy.
