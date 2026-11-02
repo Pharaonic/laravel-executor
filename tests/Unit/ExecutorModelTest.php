@@ -6,7 +6,7 @@ use Pharaonic\Laravel\Executor\Enums\ExecutorType;
 use Pharaonic\Laravel\Executor\Models\Executor;
 
 it('stores the type as its value and reads it as ExecutorType', function () {
-    $model = Executor::query()->create(['type' => ExecutorType::ONCE, 'name' => 'once', 'executed' => 0]);
+    $model = Executor::query()->create(['type' => ExecutorType::ONCE, 'name' => 'once', 'batch' => 1, 'executed' => 0]);
 
     expect($model->getAttributes()['type'])->toBe(2)
         ->and($model->fresh()?->type)->toBe(ExecutorType::ONCE);
@@ -29,7 +29,7 @@ it('runs an always executor every time', function () {
 });
 
 it('counts a run', function () {
-    $model = Executor::query()->create(['type' => ExecutorType::ALWAYS, 'name' => 'always', 'executed' => 1]);
+    $model = Executor::query()->create(['type' => ExecutorType::ALWAYS, 'name' => 'always', 'batch' => 1, 'executed' => 1]);
 
     $model->execute();
 

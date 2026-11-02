@@ -38,13 +38,28 @@ class ExecutorManager
     }
 
     /**
-     * Get all executor records, keyed by name.
+     * Get the executor records of this server, keyed by name: its own record
+     * of an executor limited to servers, or else the shared record.
      *
      * @return Collection<array-key, Executor>
      */
     public function getRecords()
     {
-        return Executor::all()->keyBy('name');
+        // Read from the write connection, so a replica that lags behind
+        // never hides a record another server has just written.
+        $query = Executor::query();
+        $query->useWritePdo();
+        $records = [];
+
+        foreach ($query->get() as $record) {
+            if ($record->server === null || $this->isServer($record->server)) {
+                $records[] = $record;
+            }
+        }
+
+        return collect($records)
+            ->sortBy(fn (Executor $record) => $record->server === null ? 0 : 1)
+            ->keyBy('name');
     }
 
     /**
@@ -66,9 +81,33 @@ class ExecutorManager
      */
     public function getNextBatchNumber()
     {
-        $batch = Executor::query()->max('batch');
+        $query = Executor::query();
+        $query->useWritePdo();
+        $batch = $query->max('batch');
 
         return (is_numeric($batch) ? (int) $batch : 0) + 1;
+    }
+
+    /**
+     * Get the name of this server, from `pharaonic.executor.server`.
+     *
+     * @return string|null
+     */
+    public function getServer()
+    {
+        $server = config('pharaonic.executor.server');
+
+        return is_string($server) && $server !== '' ? $server : null;
+    }
+
+    /**
+     * Determine if a server name or IP address is this server.
+     *
+     * @return bool
+     */
+    public function isServer(string $server)
+    {
+        return $server === $this->getServer() || in_array($server, $this->getIPs(), true);
     }
 
     /**

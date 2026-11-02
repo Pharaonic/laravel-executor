@@ -74,9 +74,9 @@ Rebuild only the caches, without the other executors:
 php artisan execute --tags=cache
 ```
 
-### 4. A Task for the Worker Servers
+### 4. Queue a Job Once
 
-Queue a recalculation once, from one of the servers that run the queue workers.
+Queue a recalculation once, from whichever server deploys first. The workers pick it up from the shared queue.
 
 - ===Executor
 
@@ -89,8 +89,6 @@ Queue a recalculation once, from one of the servers that run the queue workers.
       public $type = ExecutorType::ONCE;
 
       public $tags = ['ratings'];
-
-      public $servers = ['10.0.0.21', '10.0.0.22'];
 
       public function up(): void
       {
@@ -131,3 +129,30 @@ Queue a recalculation once, from one of the servers that run the queue workers.
       }
   }
   ```
+
+### 5. A Task for Each Web Server
+
+Link the public storage folder once on each web server, because every server has its own disk.
+
+```php title="executors/2026_02_01_090300_link_storage.php"
+use Pharaonic\Laravel\Executor\Classes\Executor;
+use Pharaonic\Laravel\Executor\Enums\ExecutorType;
+
+return new class () extends Executor {
+    public $type = ExecutorType::ONCE;
+
+    public $servers = ['web-1', 'web-2'];
+
+    public function up(): void
+    {
+        $this->command('storage:link');
+    }
+
+    public function down(): void
+    {
+        //
+    }
+};
+```
+
+Each web server sets its name with `EXECUTOR_SERVER=web-1` or `EXECUTOR_SERVER=web-2`. Each listed server runs the executor on its first deploy and skips it after that. A server added to the list later runs it on its next deploy.

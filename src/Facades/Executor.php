@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Facade;
  * @method static \Illuminate\Support\Collection<array-key, \Pharaonic\Laravel\Executor\Models\Executor> getRecords()
  * @method static int getNextBatchNumber()
  * @method static array<int, string> getIPs()
+ * @method static string|null getServer()
+ * @method static bool isServer(string $server)
  * @method static array<string, array{name: string, path: string|false, type: \Pharaonic\Laravel\Executor\Enums\ExecutorType, tags: array<array-key, mixed>|null, servers: array<array-key, mixed>|null, batch: int|null, executed: bool}> info()
  *
  * @see \Pharaonic\Laravel\Executor\Classes\ExecutorManager

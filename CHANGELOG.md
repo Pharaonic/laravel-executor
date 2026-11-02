@@ -2,6 +2,25 @@
 
 All notable changes to this project are documented here.
 
+## Unreleased
+
+### Added
+
+- An executor with `$servers` keeps one record per server: a `ONCE` executor runs once on each listed server, and an `ALWAYS` executor runs on each listed server on every deploy. Executors without `$servers` keep one shared record, as before. Run `php artisan migrate` after updating: a new migration adds the `server` column. Records written before it count as run on every server, so their `ONCE` executors don't run again.
+- `EXECUTOR_SERVER` (`pharaonic.executor.server`) names the server, and `$servers` accepts those names next to IP addresses. A named server keeps its records when its address changes, which makes `$servers` work in Docker and other containers. `Executor::getServer()` returns the name, and `Executor::isServer()` tells whether a name or address is this server.
+
+### Changed
+
+- The lock around `php artisan execute` is a reserved row of the executors table instead of a cache lock, so every server that shares the table shares the lock without any cache setup. `execute:rollback` and `execute:fresh` take the same lock. `pharaonic.executor.lock.store` (`EXECUTOR_LOCK_STORE`) is deprecated and ignored; `pharaonic.executor.lock.seconds` works as before.
+- `execute:rollback` only rolls back the records this server sees: shared records and its own records of executors with `$servers`. It no longer runs `down()` for an executor limited to other servers, or deletes their records.
+- The executor records are read from the write connection, so a lagging read replica can't make a `ONCE` executor run twice.
+- `execute:fresh` deletes the executor records instead of truncating the table, so it keeps the lock row.
+- New executors tables have a required `batch`. Tables created by an earlier release keep their columns, because the create migration doesn't run again.
+
+### Removed
+
+- The `2026_10_25_000001_upgrade_executors_table_from_1x` migration. A table created by 1.x is no longer converted: the upgrade guide shows how to recreate it and keep its records. Applications that already ran the removed migration keep their converted table.
+
 ## 13.0.0 - 2026-10-25
 
 First release of the Laravel 13 line, built from 12.1.0.
