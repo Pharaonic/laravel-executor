@@ -74,7 +74,7 @@
 | `name` | `string` | The executor's file name without `.php` |
 | `tags` | `?array` | The executor's tags |
 | `servers` | `?array` | The executor's server IP addresses |
-| `batch` | `?int` | The batch of the first run |
+| `batch` | `int` | The batch of the first run |
 | `executed` | `int` | How many times it has run |
 | `last_executed_at` | `?CarbonInterface` | When it last ran |
 
