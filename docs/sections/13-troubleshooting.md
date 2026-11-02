@@ -14,7 +14,7 @@ The executor still extends the 1.x class. Use `Pharaonic\Laravel\Executor\Classe
 
 ### "Column not found: name" after upgrading from 1.x
 
-The executors table still has the 1.x shape. Run `php artisan migrate`, which converts it.
+The executors table still has the 1.x shape, and `php artisan migrate` doesn't change it. Recreate the table and copy its records, as described in [Upgrading](#upgrading).
 
 ### "Another server has been running the executors for more than 600 seconds."
 
