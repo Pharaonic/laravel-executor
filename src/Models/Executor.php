@@ -2,7 +2,9 @@
 
 namespace Pharaonic\Laravel\Executor\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Pharaonic\Laravel\Executor\Classes\ExecutorLock;
 use Pharaonic\Laravel\Executor\Enums\ExecutorType;
 
 /**
@@ -54,6 +56,14 @@ class Executor extends Model
         'executed' => 'integer',
         'last_executed_at' => 'datetime',
     ];
+
+    /**
+     * Hide the lock row, which shares the table.
+     */
+    protected static function booted(): void
+    {
+        static::addGlobalScope('withoutLock', fn (Builder $query) => $query->where('name', '!=', ExecutorLock::NAME));
+    }
 
     /**
      * Get the current connection name for the model.
