@@ -3,11 +3,14 @@
 namespace Pharaonic\Laravel\Executor\Console;
 
 use Illuminate\Console\Command;
+use Pharaonic\Laravel\Executor\Console\Concerns\RunsWithLock;
 use Pharaonic\Laravel\Executor\Facades\Executor as ExecutorFacade;
 use Pharaonic\Laravel\Executor\Models\Executor;
 
 class ExecuteRollbackCommand extends Command
 {
+    use RunsWithLock;
+
     /**
      * The name and signature of the console command.
      *
@@ -30,6 +33,14 @@ class ExecuteRollbackCommand extends Command
      */
     public function handle()
     {
+        return $this->withLock(fn () => $this->rollback());
+    }
+
+    /**
+     * Roll back the latest batches of this server.
+     */
+    private function rollback(): void
+    {
         $steps = $this->option('steps');
         $records = ExecutorFacade::getRecords();
         $items = ExecutorFacade::getPool()->collect($records)->getItems();
@@ -47,7 +58,7 @@ class ExecuteRollbackCommand extends Command
         if (empty($batches)) {
             $this->warn('There are no executors has been found.');
 
-            return 0;
+            return;
         }
 
         foreach ($items as $item) {
@@ -61,7 +72,5 @@ class ExecuteRollbackCommand extends Command
         Executor::query()->whereKey($records->whereIn('batch', $batches)->pluck('id')->all())->delete();
 
         $this->info('Executors has been rollback successfully.');
-
-        return 0;
     }
 }
