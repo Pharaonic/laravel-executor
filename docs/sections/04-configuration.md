@@ -20,13 +20,11 @@ return [
 
     /**
      * The lock that makes servers deploying at the same time run the
-     * executors one after another. Use a cache store every server shares
-     * (redis, database, memcached or dynamodb); null uses the default store.
-     * `seconds` is how long a run may hold the lock and how long the next
-     * server waits for it.
+     * executors one after another. It is a row of the executors table, so
+     * every server that shares the table shares the lock. `seconds` is how
+     * long a run may hold the lock and how long the next server waits for it.
      */
     'lock' => [
-        'store' => env('EXECUTOR_LOCK_STORE'),
         'seconds' => env('EXECUTOR_LOCK_SECONDS', 600),
     ],
 ];
@@ -36,9 +34,8 @@ return [
 | --- | --- | --- | --- |
 | `pharaonic.executor.connection` | `EXECUTOR_CONNECTION` | your default connection | Database connection of the executors table |
 | `pharaonic.executor.table` | `EXECUTOR_TABLE` | `executors` | Name of the executors table |
-| `pharaonic.executor.lock.store` | `EXECUTOR_LOCK_STORE` | your default cache store | Cache store of the lock around `php artisan execute` |
 | `pharaonic.executor.lock.seconds` | `EXECUTOR_LOCK_SECONDS` | `600` | How long a run may hold the lock, and how long another server waits for it |
 
 :::info Same Database on Every Server
-All your servers should share the same executors table. The table is how a `ONCE` executor knows it already ran.
+All your servers should share the same executors table. The table is how a `ONCE` executor knows it already ran, and it holds the lock. When each server has its own application database, point `EXECUTOR_CONNECTION` at a connection every server shares.
 :::
